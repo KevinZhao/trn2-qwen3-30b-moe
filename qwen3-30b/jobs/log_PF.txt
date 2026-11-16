@@ -1,0 +1,138 @@
+ie_ana.py
+ie_pick.py
+ie_prof.sh
+1 1024 /data/cache/rs_RS7/vc/neuron/native_neff_cache/12/23/1223c0a7038c424fcb9c0c4e4ec2f1b2.neff
+1 1024 /data/cache/rs_RS7/vc/neuron/native_neff_cache/37/03/3703a2123b1e8074326c9cd1c84e00aa.neff
+1 1024 /data/cache/rs_RS7/vc/neuron/native_neff_cache/59/e1/59e12cfedb1044f36758e830a296b1ac.neff
+1 2048 /data/cache/rs_RS7/vc/neuron/native_neff_cache/6b/dc/6bdcf5484757b9b3b76d47f6f7ed55bb.neff
+1 2048 /data/cache/rs_RS7/vc/neuron/native_neff_cache/ad/b9/adb92073de59f6c9cc720b5f002c6d07.neff
+1 2048 /data/cache/rs_RS7/vc/neuron/native_neff_cache/ec/01/ec01c5847431523002fc86381082312f.neff
+1 4096 /data/cache/rs_RS7/vc/neuron/native_neff_cache/ca/17/ca178e2a619300c955dea43a638b6e7f.neff
+1 4096 /data/cache/rs_RS7/vc/neuron/native_neff_cache/df/66/df66d562b78db9c72aa2a5896133864b.neff
+1 4096 /data/cache/rs_RS7/vc/neuron/native_neff_cache/f5/b3/f5b32990cdfa973d927107d79d068b31.neff
+1 8192 /data/cache/rs_RS7/vc/neuron/native_neff_cache/98/c4/98c4922512bf367b6d30486ea94891a1.neff
+1 8192 /data/cache/rs_RS7/vc/neuron/native_neff_cache/a0/a6/a0a66d8f9124465ab3316ed619d6a854.neff
+1 8192 /data/cache/rs_RS7/vc/neuron/native_neff_cache/bc/bd/bcbd986cf6a04766d5057fd9db7aa489.neff
+4 1024 /data/cache/rs_RS7/vc/neuron/native_neff_cache/52/94/5294683219b9511be796b78561cf3d56.neff
+4 1024 /data/cache/rs_RS7/vc/neuron/native_neff_cache/6c/75/6c753b6759ed81935129b7467199fa17.neff
+4 1024 /data/cache/rs_RS7/vc/neuron/native_neff_cache/e8/fc/e8fc0e16a334d7cd58ea3bee2676a2a6.neff
+4 2048 /data/cache/rs_RS7/vc/neuron/native_neff_cache/0c/ad/0cadcaa649257dc55336ba8533e41a29.neff
+4 2048 /data/cache/rs_RS7/vc/neuron/native_neff_cache/38/c2/38c2e90c77441d0821e94a5afab83ea1.neff
+4 2048 /data/cache/rs_RS7/vc/neuron/native_neff_cache/52/9c/529c1ab216dcf0a067b92996687917c7.neff
+4 4096 /data/cache/rs_RS7/vc/neuron/native_neff_cache/0a/51/0a51c6b8022acb39b90d8a5c25aefe53.neff
+4 4096 /data/cache/rs_RS7/vc/neuron/native_neff_cache/85/2d/852d594f553abf9587847a09772761bd.neff
+4 4096 /data/cache/rs_RS7/vc/neuron/native_neff_cache/ea/ca/eaca87ecc87168e097e70d2c06e5a1a1.neff
+4 8192 /data/cache/rs_RS7/vc/neuron/native_neff_cache/19/7a/197a5a7a8216ff261c1090f7e0e8fb20.neff
+4 8192 /data/cache/rs_RS7/vc/neuron/native_neff_cache/b5/ce/b5ce671029004d9cbf95e183bebb1d14.neff
+4 8192 /data/cache/rs_RS7/vc/neuron/native_neff_cache/f5/77/f577f80cdea0fa397b17ec0603273b62.neff
+8 1024 /data/cache/rs_RS7/vc/neuron/native_neff_cache/09/dd/09dd42dec8f9719b505e4ac008de0d6c.neff
+8 1024 /data/cache/rs_RS7/vc/neuron/native_neff_cache/2b/81/2b816ce3f4d41554f65c9c080dc70ebb.neff
+8 1024 /data/cache/rs_RS7/vc/neuron/native_neff_cache/fb/8a/fb8ad62373a50fc6834d857c3eaedc80.neff
+8 2048 /data/cache/rs_RS7/vc/neuron/native_neff_cache/50/e5/50e5c7803066dda0fc84a5a326ae669b.neff
+8 2048 /data/cache/rs_RS7/vc/neuron/native_neff_cache/77/1f/771fd45c9b33878d628c53a95f934201.neff
+8 2048 /data/cache/rs_RS7/vc/neuron/native_neff_cache/83/09/8309c39b1d2209b5f022a0dc9947dd2f.neff
+8 4096 /data/cache/rs_RS7/vc/neuron/native_neff_cache/13/74/13746496ab334af1ee7e9c768410f566.neff
+8 4096 /data/cache/rs_RS7/vc/neuron/native_neff_cache/2b/0e/2b0eb7582e2a93d5e468a96dd981da94.neff
+8 4096 /data/cache/rs_RS7/vc/neuron/native_neff_cache/5f/25/5f25eb9e746f60924c54b19d178c6d25.neff
+8 8192 /data/cache/rs_RS7/vc/neuron/native_neff_cache/09/bf/09bfc83de88d8632eb89582bac5fef6d.neff
+8 8192 /data/cache/rs_RS7/vc/neuron/native_neff_cache/7d/51/7d514d0b061fdee01fa043146198f4c0.neff
+8 8192 /data/cache/rs_RS7/vc/neuron/native_neff_cache/f5/86/f5864f802393e091a2cfdb6d6318c8b3.neff
+16 1024 /data/cache/rs_RS7/vc/neuron/native_neff_cache/26/5f/265fa237c3b879c6309ec00cc31ee86d.neff
+16 1024 /data/cache/rs_RS7/vc/neuron/native_neff_cache/63/9b/639ba86396690d81445548d7f090e01b.neff
+16 1024 /data/cache/rs_RS7/vc/neuron/native_neff_cache/e2/e8/e2e8844731f5964c14b6879c5d3792e8.neff
+16 2048 /data/cache/rs_RS7/vc/neuron/native_neff_cache/2a/e0/2ae0e89ce799524d80483d33eea6b19f.neff
+NEFF 16 1024 -> /data/cache/rs_RS7/vc/neuron/native_neff_cache/26/5f/265fa237c3b879c6309ec00cc31ee86d.neff
+-rw-r--r--+ 1 root root   96469703 Nov  9 05:19 p_rank_0_exec_6.ntff
+-rw-------+ 1 root root 1289403431 Nov  9 05:20 prof.json
+-rw-r--r--+ 1 root root       8471 Nov  9 05:20 sum.txt
+-rw-r--r--+ 1 root root          0 Nov  9 05:20 view.log
+total_time_ms=15.057 layers=48 embed+AR_emb_us=57.4 head(lm_head+sampling+allgather)_us=531.0
+  attn     median=   69.5us mean=   69.9us min=   66.1 max=   74.5 total_ms=3.356 share= 22.3%
+  AR_attn  median=    9.2us mean=    9.3us min=    8.7 max=   11.0 total_ms=0.445 share=  3.0%
+  moe      median=  212.4us mean=  212.4us min=  206.5 max=  217.3 total_ms=10.196 share= 67.7%
+  AR_moe   median=    9.3us mean=    9.8us min=    8.7 max=   13.1 total_ms=0.472 share=  3.1%
+  per-layer sum median=301.5us  x48 = 14.468 ms
+    total_exec_time                                   0.015040600469
+    tensor_engine_instruction_count                   498572
+    static_dma_packet_percent                         0.025299305752337773
+    software_dynamic_dma_size_percent                 0.9719012180080027
+    vector_engine_active_time                         0.006546060838
+    software_dynamic_dma_size                         2441958060
+    mbu_min_read_util_percent                         1.7352487928218683
+    hardware_dynamic_dma_packet_count                 143448
+    tensor_engine_active_time_percent                 0.5412974718848911
+    scalar_engine_active_time                         0.005837037065
+    dma_active_cycles                                 7247548
+    scalar_engine_instruction_count                   16461
+    dma_transfer_total_bytes                          17301760
+    throttle_avg_util_limit_nc5_percent               0.6918392506691122
+    gpsimd_engine_active_time_percent                 0.43923160380166265
+    total_active_time                                 0.014354003653
+    hardware_dynamic_dma_size                         28803248
+    vector_engine_active_time_percent                 0.434740984026522
+    static_dma_active_time                            0.00104283997
+    hardware_dynamic_dma_active_time                  0.000436777632
+NEFF 16 2048 -> /data/cache/rs_RS7/vc/neuron/native_neff_cache/2a/e0/2ae0e89ce799524d80483d33eea6b19f.neff
+-rw-r--r--+ 1 root root   96640828 Nov  9 05:21 p_rank_0_exec_6.ntff
+-rw-------+ 1 root root 1345019063 Nov  9 05:22 prof.json
+-rw-r--r--+ 1 root root       8460 Nov  9 05:22 sum.txt
+-rw-r--r--+ 1 root root          0 Nov  9 05:22 view.log
+total_time_ms=13.258 layers=48 embed+AR_emb_us=57.4 head(lm_head+sampling+allgather)_us=525.1
+  attn     median=   85.8us mean=   85.7us min=   81.0 max=   90.3 total_ms=4.115 share= 31.0%
+  AR_attn  median=   10.3us mean=   10.5us min=    8.9 max=   12.7 total_ms=0.506 share=  3.8%
+  moe      median=  157.5us mean=  158.1us min=  153.5 max=  178.7 total_ms=7.588 share= 57.2%
+  AR_moe   median=    9.4us mean=    9.7us min=    8.7 max=   11.8 total_ms=0.467 share=  3.5%
+  per-layer sum median=263.5us  x48 = 12.676 ms
+    total_active_time_percent                         0.9619011169448477
+    throttle_activity_0_avg_util_limit_nc5_percent    1
+    dynamic_dma_size_percent                          0.9816979907787672
+    software_dynamic_dma_size_percent                 0.9700260777428739
+    scalar_engine_active_time_percent                 0.40804771170303455
+    dma_active_cycles                                 6803701
+    total_time                                        0.013258370118
+    host_device_dma_packet_count                      2090
+    hardware_dynamic_dma_packet_percent               0.10833228692236647
+    tensor_engine_instruction_count                   527358
+    software_dynamic_dma_active_time                  0.004703105773
+    static_dma_packet_count                           22751
+    dynamic_dma_packet_percent                        0.973300677487534
+    tensor_engine_active_time                         0.007053062581
+    static_dma_size                                   40828888
+    vector_engine_instruction_time                    0.010418829586
+    dynamic_dma_active_time_percent                   0.3675794563578434
+    tensor_engine_instruction_time                    0.098857050977
+    software_dynamic_dma_size                         2163974764
+    hardware_dynamic_dma_active_time_percent          0.028860103498418384
+NEFF 1 1024 -> /data/cache/rs_RS7/vc/neuron/native_neff_cache/12/23/1223c0a7038c424fcb9c0c4e4ec2f1b2.neff
+-rw-r--r--+ 1 root root  27589634 Nov  9 05:23 p_rank_0_exec_6.ntff
+-rw-------+ 1 root root 204144491 Nov  9 05:23 prof.json
+-rw-r--r--+ 1 root root      8442 Nov  9 05:23 sum.txt
+-rw-r--r--+ 1 root root         0 Nov  9 05:23 view.log
+total_time_ms=5.867 layers=48 embed+AR_emb_us=104.2 head(lm_head+sampling+allgather)_us=312.1
+  attn     median=   43.0us mean=   44.0us min=   41.4 max=   49.2 total_ms=2.114 share= 36.0%
+  AR_attn  median=    7.3us mean=    7.7us min=    7.2 max=   19.8 total_ms=0.370 share=  6.3%
+  moe      median=   53.2us mean=   53.6us min=   48.9 max=   60.3 total_ms=2.574 share= 43.9%
+  AR_moe   median=    7.5us mean=    8.2us min=    7.2 max=   13.2 total_ms=0.392 share=  6.7%
+  per-layer sum median=112.6us  x48 = 5.451 ms
+    throttle_activity_1_avg_util_limit_nc5_percent    0.5
+    scalar_engine_instruction_time                    0.001555098439
+    scalar_engine_instruction_count                   4110
+    hardware_dynamic_dma_active_time_percent          0.019743293946550604
+    static_dma_size                                   5091320
+    software_dynamic_dma_packet_percent               0.8641055535018626
+    vector_engine_instruction_count                   16731
+    software_dynamic_dma_active_time_percent          0.45413870110985843
+    throttle_activity_1_avg_util_limit_nc4_percent    0.5
+    dma_active_time_percent                           0.5197889453284441
+    scalar_engine_active_time_percent                 0.1784103869287937
+    software_dynamic_dma_size_percent                 0.9942586140297012
+    throttle_activity_0_avg_util_limit_nc5_percent    1
+    scalar_engine_active_time                         0.0010467214
+    gpsimd_engine_active_time                         0.002164050304
+    dma_packet_time                                   0.056878085397
+    dma_active_cycles                                 3659479
+    static_dma_packet_percent                         0.04049724647159743
+    host_device_dma_transfer_bytes                    4483208
+    dma_transfer_total_bytes                          1461984
+PF_DONE
+JOBDONE

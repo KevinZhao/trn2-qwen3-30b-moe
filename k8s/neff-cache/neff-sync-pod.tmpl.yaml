@@ -1,0 +1,29 @@
+# 一次性同步 pod：把某节点 hostPath 上已有的 native_neff_cache 推到 S3（只读挂载，不申请 Neuron 设备）
+# 用法：sed -e s/__NAME__/neff-sync-a/ -e s/__NODE__/<NODE>/ \
+#           -e s#__HOSTCACHE__#/mnt/k8s-disks/0/lx/cache# -e "s/__SKIP__/lx_q235_lx/" neff-sync-pod.tmpl.yaml | kubectl apply -f -
+apiVersion: v1
+kind: Pod
+metadata: {name: __NAME__, namespace: trn2-perf, labels: {app: neff-cache, role: sync}}
+spec:
+  serviceAccountName: neff-cache
+  nodeName: __NODE__
+  restartPolicy: Never
+  tolerations: [{key: aws.amazon.com/neuron, operator: Exists, effect: NoSchedule}]
+  containers:
+  - name: sync
+    image: public.ecr.aws/neuron/pytorch-inference-vllm-neuronx:0.29.0.1.2.0-neuronx-py314-sdk2.33.0-ubuntu26.04
+    imagePullPolicy: IfNotPresent
+    command: ["bash", "/scripts/neff_sync_host.sh"]
+    env:
+    - {name: SKIP, value: "__SKIP__"}
+    - {name: NODE_NAME, valueFrom: {fieldRef: {fieldPath: spec.nodeName}}}
+    - {name: POD_NAME, valueFrom: {fieldRef: {fieldPath: metadata.name}}}
+    resources:
+      requests: {cpu: "1", memory: 2Gi}
+      limits: {cpu: "4", memory: 4Gi}
+    volumeMounts:
+    - {name: cache, mountPath: /src/cache, readOnly: true}
+    - {name: scripts, mountPath: /scripts, readOnly: true}
+  volumes:
+  - {name: cache, hostPath: {path: __HOSTCACHE__, type: Directory}}
+  - {name: scripts, configMap: {name: neff-cache-scripts}}

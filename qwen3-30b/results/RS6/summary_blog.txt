@@ -1,0 +1,48 @@
+Success	07:41:25 phase gsm
+GSM {"n": 500, "acc": 0.946, "wall_s": 353}
+resets  non200 
+errlines 0
+errlines2 0
+07:47:18 bench done
+TAG=RS6 MNS=32 NSB=[1,4,8,16,32] PKG=/data/cache/rs_pkg/pkg_rs2 CACHE=/data/cache/rs_RS6 PORT=8801 COMM=62801 start Sun Nov  8 07:05:35 UTC 2026
+II_DGE=sw
+NEURON_RT_ROOT_COMM_ID=127.0.0.1:62801
+NEURON_SKIP_EFA_AFFINITY=1
+NM_KMOD=nm_k9f
+NM_MOE=1
+P3_KVIX=1
+P4_DSBP=1
+P4_DSBPC=1
+P4_KNOBS=/tmp/ni2_knobs_RS6.json
+Q3_FUSED_MOE=1
+Q3_FUSED_MOE_KMOD=p2_fused11r
+Q3_FUSED_MOE_MAX_T=32
+VLLM_MQ_MAX_CHUNK_BYTES_MB=1
+WSA_FN=1
+1818946a5ac21bb414ca50e86b1c88d2  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/__init__.py
+27078aad000b4a5f8b3f3fdc2c45fecc  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/config.py
+47f8cb6db25de29777fc8ff980a3d436  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/factory.py
+1f2d3b12f89c7ffe7edeef72976c092f  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/ii_fused11a.py
+46ce026c9bdc540da6cda171ce553a69  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/model_bf16.py
+9299433e6ba335e6fd71252789b983e4  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/nm_comb.py
+7e63ddd58d6b627d04eeda5d14c5f587  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/nm_glue.py
+c170577f0617b47ceb379217995774fa  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/nm_k9.py
+525ad00fb348d6a2a800121966d1c0fb  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/nm_k9f.py
+b330048b67ad0a580edd4f5687be6e69  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/p2_fused11n.py
+bf2d13d9cb1d491377a96172d44b51bd  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/p2_fused11o.py
+21903e69a0054a0db91bfd7c44ffce4a  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/p2_fused11p.py
+9deded5cbc355df7a978dc563e26246d  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/p2_fused11r.py
+20269020a154a9572556f58e10897df0  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/q3_fused_moe.py
+70a013b1c2404608d55207760de5aa5f  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/weight_loaders_bf16.py
+6f0d1fd267d1ef0c6ed240b9a5415f6e  /opt/conda/lib/python3.14/site-packages/vllm_neuron/vllm/core/scheduler.py
+neffs_before 58
+ready Sun Nov  8 07:41:25 UTC 2026
+neffs_after 58 new=0
+mem_peak_GiB 52
+pid49316 II_DGE=sw
+pid49316 NM_MOE=1
+pid49316 P3_KVIX=1
+pid49316 P4_DSBP=1
+pid49316 Q3_FUSED_MOE_KMOD=p2_fused11r
+CFG={"neuron_config":{"quantization":"bf16","on_device_sampling_config":{"all_greedy":true},"num_batched_tokens_buckets":[128,256,512,1024,2048,4096,8192],"num_seqs_buckets":[1,4,8,16,32],"decode_context_length_buckets":[1024,2048,4096],"kv_segment_size_buckets":[8192]}} SRVX=
+	

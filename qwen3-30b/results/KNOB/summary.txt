@@ -1,0 +1,27 @@
+Success	RSP   VB  kn_c2p1_c16_s42    n= 64 fail=0 | TTFT   345.4   245.7  1303.6 | TPOT  22.68 p99  23.31 | ITL  20.98 max   118.3 | tok/s  682.6 in=17268
+RSP   VB  kn_c2p1_c4_s42     n= 32 fail=0 | TTFT   152.3   139.1   288.4 | TPOT  11.25 p99  11.80 | ITL  10.90 max   103.7 | tok/s  342.1 in=8869
+JOBDONE
+Traceback (most recent call last):
+  File "/tmp/ni2e/cbv_ana.py", line 10, in <module>
+    print(f"{d.split('_')[-1]:5s} VB  {n:18s} n={j['completed']:3d} fail={j.get('failed',0)} | TTFT {j['mean_ttft_ms']:7.1f} {j['median_ttft_ms']:7.1f} {j['p99_ttft_ms']:7.1f} | TPOT {j['mean_tpot_ms']:6.2f} p99 {j.get('p99_tpot_ms',-1):6.2f} | ITL {j['median_itl_ms']:6.2f} max {max(itl) if itl else -1:7.1f} | tok/s {j['output_throughput']:6.1f} in={j.get('total_input_tokens')}")
+                                                                                                                                                                                                                                                          ~^^^^^^^^^^^^^^^^^
+KeyError: 'median_itl_ms'
+RSP   VB  kn_c0p0_c16_s123   n= 64 fail=0 | TTFT   506.3   478.5  1109.2 | TPOT  22.16 p99  24.49 | ITL  20.90 max  1095.9 | tok/s  678.9 in=16789
+RSP   VB  kn_c0p0_c16_s42    n= 64 fail=0 | TTFT   574.4   572.6  1097.7 | TPOT  21.85 p99  22.92 | ITL  20.89 max  1049.0 | tok/s  696.9 in=17268
+RSP   VB  kn_c0p0_c4_s42     n= 32 fail=0 | TTFT   146.8   135.9   268.1 | TPOT  11.25 p99  11.85 | ITL  10.89 max   244.4 | tok/s  342.0 in=8869
+RSP   VB  kn_c0p1_c16_s123   n= 64 fail=0 | TTFT   333.4   226.2  1376.3 | TPOT  22.73 p99  24.38 | ITL  21.05 max   120.8 | tok/s  668.1 in=16789
+RSP   VB  kn_c0p1_c16_s42    n= 64 fail=0 | TTFT   351.0   245.6  1320.8 | TPOT  22.74 p99  23.41 | ITL  21.10 max   120.8 | tok/s  679.8 in=17268
+RSP   VB  kn_c0p1_c4_s42     n= 32 fail=0 | TTFT   153.4   134.5   288.8 | TPOT  11.26 p99  11.83 | ITL  10.88 max   105.0 | tok/s  340.5 in=8869
+RSP   VB  kn_c1p0_c16_s123   n= 64 fail=0 | TTFT   535.3   530.0  1109.4 | TPOT  22.01 p99  23.80 | ITL  20.97 max  1064.2 | tok/s  679.7 in=16789
+RSP   VB  kn_c1p0_c16_s42    n= 64 fail=0 | TTFT   498.1   489.9  1007.5 | TPOT  22.10 p99  23.14 | ITL  21.00 max   995.0 | tok/s  689.1 in=17268
+RSP   VB  kn_c1p0_c4_s42     n= 32 fail=0 | TTFT   143.5   126.0   259.3 | TPOT  11.24 p99  11.87 | ITL  10.89 max   241.8 | tok/s  342.5 in=8869
+RSP   VB  kn_c1p1_c16_s123   n= 64 fail=0 | TTFT   347.2   233.7  1420.1 | TPOT  22.77 p99  24.77 | ITL  21.01 max   118.8 | tok/s  670.2 in=16789
+RSP   VB  kn_c1p1_c16_s42    n= 64 fail=0 | TTFT   387.1   276.3  1378.9 | TPOT  22.59 p99  23.17 | ITL  20.90 max   119.4 | tok/s  684.5 in=17268
+RSP   VB  kn_c1p1_c4_s42     n= 32 fail=0 | TTFT   157.6   141.9   288.6 | TPOT  11.26 p99  11.79 | ITL  10.90 max   110.6 | tok/s  342.2 in=8869
+RSP   VB  kn_c1p2_c16_s123   n= 64 fail=0 | TTFT   333.6   188.0  1600.6 | TPOT  22.90 p99  25.11 | ITL  21.08 max   121.1 | tok/s  660.5 in=16789
+RSP   VB  kn_c1p2_c16_s42    n= 64 fail=0 | TTFT   355.3   210.8  1534.9 | TPOT  22.67 p99  23.20 | ITL  20.96 max   115.1 | tok/s  682.8 in=17268
+RSP   VB  kn_c1p2_c4_s42     n= 32 fail=0 | TTFT   154.0   146.4   297.4 | TPOT  11.19 p99  11.61 | ITL  10.85 max   105.2 | tok/s  346.0 in=8869
+RSP   VB  kn_c2p1_c16_s123   n= 64 fail=0 | TTFT   333.1   223.4  1393.8 | TPOT  22.71 p99  24.97 | ITL  20.98 max   115.3 | tok/s  667.3 in=16789
+RSP   VB  kn_c2p1_c16_s42    n= 64 fail=0 | TTFT   345.4   245.7  1303.6 | TPOT  22.68 p99  23.31 | ITL  20.98 max   118.3 | tok/s  682.6 in=17268
+RSP   VB  kn_c2p1_c4_s42     n= 32 fail=0 | TTFT   152.3   139.1   288.4 | TPOT  11.25 p99  11.80 | ITL  10.90 max   103.7 | tok/s  342.1 in=8869
+	

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>vllm-neuron 多序列打包 prefill：改造思路</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1f2328; --muted: #59636e; --line: #d1d9e0; --soft: #f6f8fa;
+    --accent: #0969da; --accent-soft: #ddf4ff; --warn: #9a6700; --warn-soft: #fff8c5;
+    --bad: #cf222e; --bad-soft: #ffebe9; --good: #1a7f37; --good-soft: #dafbe1;
+    --r0: #4c8bf5; --r1: #34a853; --r2: #f9ab00; --r3: #a142f4; --pad: #c4c9d0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117; --fg: #e6edf3; --muted: #9198a1; --line: #3d444d; --soft: #151b23;
+      --accent: #4493f8; --accent-soft: #121d2f; --warn: #d29922; --warn-soft: #272115;
+      --bad: #f85149; --bad-soft: #25171c; --good: #3fb950; --good-soft: #12261e;
+      --pad: #4a525c;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+         font: 15px/1.7 -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 32px 24px 64px; }
+  h1 { font-size: 26px; margin: 0 0 6px; }
+  h2 { font-size: 20px; margin: 40px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+  h3 { font-size: 16px; margin: 24px 0 8px; }
+  .sub { color: var(--muted); margin: 0 0 20px; }
+  code { font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: var(--soft);
+         border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0 14px; font-size: 14px; }
+  th, td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--soft); font-weight: 600; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .tldr { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 6px; }
+  .warn { background: var(--warn-soft); border-left: 4px solid var(--warn); padding: 10px 14px; border-radius: 6px; margin: 12px 0; }
+  .bad  { background: var(--bad-soft);  border-left: 4px solid var(--bad);  padding: 10px 14px; border-radius: 6px; margin: 12px 0; }
+  .good { background: var(--good-soft); border-left: 4px solid var(--good); padding: 10px 14px; border-radius: 6px; margin: 12px 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 12px 0; }
+  .card { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; background: var(--soft); }
+  .card h4 { margin: 0 0 6px; font-size: 15px; }
+  .card .tag { display: inline-block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .card ul { margin: 0; padding-left: 18px; }
+  /* 打包缓冲示意 */
+  .buf { display: flex; height: 44px; border-radius: 6px; overflow: hidden; border: 1px solid var(--line); margin: 10px 0 4px; }
+  .seg { display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; white-space: nowrap; overflow: hidden; }
+  .seg.pad { color: var(--fg); background: repeating-linear-gradient(45deg, var(--pad), var(--pad) 6px, transparent 6px, transparent 12px); }
+  .legend { font-size: 12px; color: var(--muted); }
+  /* 块对角 mask 示意 */
+  .maskwrap { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+  .mask { display: grid; grid-template-columns: repeat(16, 14px); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+  .mask div { width: 14px; height: 14px; background: var(--bg); }
+  .mask .on0 { background: var(--r0); } .mask .on1 { background: var(--r1); }
+  .mask .on2 { background: var(--r2); } .mask .on3 { background: var(--r3); }
+  .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; margin: 12px 0; }
+  .flow .step { flex: 1 1 150px; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--soft); font-size: 14px; }
+  .flow .step b { display: block; color: var(--accent); margin-bottom: 4px; }
+  .flow .arrow { align-self: center; color: var(--muted); }
+  .ladder { font-family: ui-monospace, Menlo, monospace; font-size: 13px; background: var(--soft); border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; overflow-x: auto; }
+  footer { margin-top: 48px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 12px; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>vllm-neuron 多序列打包 prefill：改造思路</h1>
+<p class="sub">Qwen3-30B-A3B · 单 Trn2 device，TP4 / LNC2 · vLLM 0.29 / vllm-neuron 0.29 · 2026-11-09</p>
+
+<div class="tldr">
+  <b>一句话：</b>把多条新请求的 prompt 首尾相接，拼成一条长序列，用一个已编译好的 prefill 图一次算完；attention 用块对角的 causal mask，保证各条序列互相看不见。<br>
+  <b>收益：</b>ShareGPT c16 的 TTFT P99 从 1141 降到 <b>276 ms</b>，c32 从 2405 降到 <b>581 ms</b>；TPOT 也降了 9–15%；GSM8K 不变（0.946）。
+</div>
+
+<h2>1. 要解决的问题</h2>
+<ul>
+  <li>vllm-neuron 0.29 调度器写死了 <code>max_prefills_per_batch = 1</code>（<code>scheduler.py:285</code>），一个 step 只能跑一条 prefill。</li>
+  <li>短 prompt 的 prefill 受权重带宽限制：每个 step 有约 <b>60 ms 固定开销</b>（每次都要读全部 128 个专家），之后每个 token 只多约 0.04 ms。</li>
+  <li>16 条请求同时到达时，TTFT 呈阶梯状，每级 75–90 ms，P99 约 1.3 s（NJ 基线实测）：</li>
+</ul>
+<div class="ladder">req#1  65 ms ▏<br>req#2  128 ms ▏▏<br>req#3  199 ms ▏▏▏<br>…<br>req#16 1311 ms ▏▏▏▏▏▏▏▏▏▏▏▏▏▏▏▏</div>
+<p>打包的本质是<b>把 16 次固定开销合成 1–2 次</b>。H100 上的 vLLM 本来就会把这 16 条放进同一个 8192-token 的 step。</p>
+
+<h2>2. 为什么改动量不大</h2>
+<div class="bad">
+  <b>不能简单地把 <code>max_prefills_per_batch</code> 调大</b>，会同时撞上 5 个问题：
+  (a) 每条请求各自补 bucket，总长不是已编译的形状；
+  (b) 请求数那一维没有编译过；
+  (c) segmented attention 只认 <code>block_tables[0]</code>，会跨序列做 attention；
+  (d) MoE 的 padding mask 会静默置零；
+  (e) 超出 budget 的最后一条会被切成 chunk。
+</div>
+<p>但仔细读代码后发现，大部分基础已经具备：</p>
+<div class="grid">
+  <div class="card"><h4>runner 输入构建</h4>继承自 GPU vLLM，本来就是多请求写法：<code>cu_num_tokens</code>、逐 token 的 slot_mapping、逐请求的 logits_indices。KV 按 slot scatter 写入，不用改。</div>
+  <div class="card"><h4>attention</h4>不用自己写 kernel：nkilib <code>attention_cte</code> 自带 sequence packing，用 <code>bound_min/bound_max</code> 指定每个 query 能看到的 KV 区间，可以和 causal 同时生效（qwen3_vl 视觉编码器在生产里用）。</div>
+  <div class="card"><h4>sampling</h4>on-device 贪心采样本来就按行处理，一次输出 K 行没有障碍。</div>
+</div>
+<p>真正写死「只有一条」的只有 4 处：<b>调度器准入、调度器补 bucket、prefill 图里请求数那一维的形状、attention</b>。</p>
+
+<h2>3. 打包后的数据长什么样</h2>
+<p>示例：4 条请求打包进一个 T = 1024 的 bucket，padding 全部挂在最后一条上。</p>
+<div class="buf">
+  <div class="seg" style="flex:37;background:var(--r0)">r0</div>
+  <div class="seg" style="flex:210;background:var(--r1)">req1 · 210</div>
+  <div class="seg" style="flex:500;background:var(--r2)">req2 · 500</div>
+  <div class="seg" style="flex:120;background:var(--r3)">req3 · 120</div>
+  <div class="seg pad" style="flex:157">padding 157（算作 req3 的一部分）</div>
+</div>
+<div class="legend">37 + 210 + 500 + 120 = 867 个真实 token，补到 1024。positions 每条序列都从 0 开始，RoPE 自然正确。</div>
+
+<h3>块对角 causal mask（示意，每格代表一段 token）</h3>
+<div class="maskwrap">
+  <div class="mask" id="mask"></div>
+  <div style="flex:1 1 300px;font-size:14px">
+    每个 query token t 只看 <code>[bound_min[t], t]</code> 区间内的 KV：
+    <ul>
+      <li><code>bound_min[t]</code>：t 所属序列在缓冲里的起点</li>
+      <li><code>bound_max[t]</code>：该序列的终点（padding 算作最后一条序列的一部分）</li>
+      <li>上三角部分由静态 causal 跳过；跨序列的下三角 tile 照样会计算，只是被动态 mask 屏蔽掉</li>
+    </ul>
+  </div>
+</div>
+
+<h2>4. 四层改动</h2>
+<div class="flow">
+  <div class="step"><b>① 调度器</b>决定谁能一起打包、总长补一次</div><div class="arrow">→</div>
+  <div class="step"><b>② runner</b>把形状固定成已编译的样子，生成 bound / valid</div><div class="arrow">→</div>
+  <div class="step"><b>③ worker</b>编译和 warmup 打包图</div><div class="arrow">→</div>
+  <div class="step"><b>④ 模型</b>attention 传 bound，MoE 用显式 mask</div>
+</div>
+
+<h3>① 调度器 <code>vllm/core/scheduler.py</code></h3>
+<table>
+  <tr><th style="width:22%">改动点</th><th>内容</th></tr>
+  <tr><td>准入条件</td><td>只打包「干净」的请求：新请求、整条 prompt 能放进 budget、前缀缓存命中为 0、没有结构化输出 / 多模态 / KV-transfer。不满足的照旧走单条路径。</td></tr>
+  <tr><td>累计规则</td><td>按 FCFS 往后累计，直到 <code>pack_max</code> 条或总长达到 <code>pack_budget</code>；遇到第一条不满足条件的就停，不插队。</td></tr>
+  <tr><td>容量计数</td><td>max_num_seqs 和 KV 并发上限都要把 waiting 里的请求算上，否则一次放进 K 条可能超限。</td></tr>
+  <tr><td>补 bucket</td><td>原来每条请求各自补到 bucket（3 × 100 token 会变成 128 × 3 = 384，这个形状没编译过）。打包 step 改成<b>总长只补一次</b>，补到打包 bucket，padding 全挂在最后一条上。</td></tr>
+  <tr><td>与 P4 旋钮的关系</td><td>一个打包 step 算作「一次 prefill」，之后照样插 dsbp 个 decode step。</td></tr>
+</table>
+
+<h3>② runner <code>vllm/worker/neuron_model_runner.py</code></h3>
+<table>
+  <tr><th style="width:22%">改动点</th><th>内容</th></tr>
+  <tr><td>请求数维度</td><td>block_table、sampling_positions、sampling_params 的行数<b>固定为 K = max_num_seqs</b>，不足的行补齐，像 decode padding 一样被忽略。</td></tr>
+  <tr><td>attention 分支</td><td>强制走 full 分支（<code>kv_segment_size=0</code>）。segmented kernel 只有一个全局的 <code>prior_tokens</code>，表达不了多条序列。</td></tr>
+  <tr><td>新增张量</td><td><code>pack_bound_min</code>、<code>pack_bound_max</code>、<code>pack_valid</code>，都是 <code>[T]</code>，放在设备上。</td></tr>
+  <tr><td><code>max_query_len</code></td><td>传 T，不传每条请求的最大长度。dynamo 会对这个 Python int 做值 guard，每出现一个新值就会触发运行时编译（分钟级卡顿）。</td></tr>
+  <tr><td>warmup / trace</td><td>用 <code>kv_segment_size = -1</code> 作为哨兵，表示「打包变体」。</td></tr>
+</table>
+
+<h3>③ worker <code>vllm/worker/neuron_worker.py</code></h3>
+<p>对每个打包 bucket 编译一个打包图。坑：<code>_warmup_prefill</code> 自己写了一套 bucket × kv 循环，没有复用编译目标列表，要单独加一个打包循环。</p>
+
+<h3>④ 模型 <code>model_bf16.py</code>（两处，合计约 30 行）</h3>
+<ul>
+  <li>full 分支调用 <code>flash_attention</code> 时传入 bound：expand 成 <code>[头数, T, 1]</code> 并做 contiguous（kernel 按连续布局做 DMA）。</li>
+  <li><b>MoE 的 padding mask 必须改</b>，见下面的红框。</li>
+</ul>
+<div class="bad">
+  <b>最大的坑：静默出错。</b>原代码用 <code>arange &lt;= argmax(positions)</code> 推断最后一个真实 token。打包后 positions 是锯齿形的，argmax 只会指向第一条最长序列的末尾，其它序列的 token 都会被判成 padding，MoE 输出被置零。<b>不报错，只给错答案。</b>改成直接用 <code>pack_valid</code>。边界用例里一定要有「多条序列等长」的情况。
+</div>
+
+<h2>5. 编译策略：让 NEFF 数量尽量少</h2>
+<table>
+  <tr><th style="width:26%">决策</th><th>理由</th></tr>
+  <tr><td>请求数那一维不分 bucket，固定为 max_num_seqs</td><td>每个 rank 读一遍 lm_head 权重约 0.2 ms，和行数无关，多算几行可以忽略。这样每个打包 T bucket 只多 1 个 NEFF；如果请求数也分 {4, 8, 16} 三档，NEFF 数会翻 3 倍，没有收益。</td></tr>
+  <tr><td>打包 bucket = 512 / 1024 / 2048 / 4096</td><td>128 一次只能装 1–2 条，收益太小；8192 会让所有请求一起等约 400 ms，ITL 也会被拉长（实测见第 8 节的 RS8）。</td></tr>
+  <tr><td>K = 1 走原来的 segmented NEFF</td><td>原有路径完全不受影响；单请求 TTFT 扫描实测与不打包时相同。</td></tr>
+</table>
+
+<h2>6. 开关与回滚</h2>
+<table>
+  <tr><th style="width:26%">开关</th><th>作用</th></tr>
+  <tr><td><code>P5_PACK=1</code></td><td>总开关。关掉时行为和补丁前完全一样。</td></tr>
+  <tr><td>knob 文件里的 <code>pack_max</code> / <code>pack_budget</code></td><td>运行时可调，不用重启；<code>pack_max=1</code> 就是关闭。</td></tr>
+  <tr><td><code>P5_PACK_BUCKETS</code></td><td>打包 bucket 列表，默认 <code>512,1024,2048,4096</code>。</td></tr>
+  <tr><td>实现方式</td><td><code>scripts/p5_patch_pack.py</code> 对 site-packages 做带计数断言的字符串替换（每处替换都断言命中次数），原文件有备份，每次都从备份重新打补丁。</td></tr>
+</table>
+
+<h2>7. 正确性怎么验证</h2>
+<table>
+  <tr><th style="width:22%">检查项</th><th>方法与结果</th></tr>
+  <tr><td>首 token</td><td>直接来自打包 prefill 的 logits：<b>16/16 一致</b>。</td></tr>
+  <tr><td>贪心续写</td><td>完全一致率要和「batch 组成噪声」比，不能要求 100%。不打包时，逐条发和 c16 同时发相比也只有 12/16 一致（bf16 下不同 T 的 kernel 数值不同）；打包后是 11–13/16，处在同一水平。</td></tr>
+  <tr><td>边界用例</td><td>多条等长序列（专门测 argmax 的坑）、极短 prompt、总长恰好等于 bucket、满载 K 条、混入前缀命中的请求（应该回退到单条）。</td></tr>
+  <tr><td>端到端</td><td>GSM8K 500 题 0.946，和不打包相同；RS4（51 min，5587 请求）、RS7（51 min，6089 请求）两次 soak 都是 0 失败。</td></tr>
+  <tr><td>确认生效</td><td>steplog 里要看到多请求的 prefill step。</td></tr>
+</table>
+<div class="warn">
+  <b>踩过的坑：</b>第一次上机时，编译通过、NaN 检查也 PASS，但打包<b>从来没有生效</b>。原因是 vLLM 0.29 的 <code>find_longest_cache_hit</code> 返回 3 元组，补丁按 2 元组解包，前缀命中探测抛异常后，代码保守地关闭了打包，只留了一行日志。修复只改调度器的 Python 代码，不需要重编译。<b>经验：新功能要有一个「确实生效了」的正向指标，不能只看没有报错。</b>
+</div>
+
+<h2>8. 效果</h2>
+<h3>ShareGPT（seed 42，输出 512）：不打包 RS3 → 打包 RS7，两者其它配置完全相同</h3>
+<table>
+  <tr><th>负载</th><th class="num">TTFT 均值 / 中位 / P99（ms）</th><th class="num">TPOT（ms）</th><th class="num">吞吐（tok/s）</th></tr>
+  <tr><td>c4</td><td class="num">169 / 180 / 287 → 107 / 97 / 208</td><td class="num">8.81 → 8.85</td><td class="num">438 → 432</td></tr>
+  <tr><td>c16</td><td class="num">299 / 213 / 1141 → 243 / 255 / <b>276</b></td><td class="num">15.81 → <b>14.43</b></td><td class="num">974 → <b>1075</b></td></tr>
+  <tr><td>c16（seed 123）</td><td class="num">293 / 196 / 1213 → 265 / 266 / 381</td><td class="num">15.94 → 14.44</td><td class="num">946 → 1049</td></tr>
+  <tr><td>c32</td><td class="num">461 / 215 / 2405 → 354 / 300 / <b>581</b></td><td class="num">20.29 → <b>17.24</b></td><td class="num">1481 → <b>1753</b></td></tr>
+</table>
+<p>16 条 prompt 同时发，全部完成的墙钟时间：逐条 6.90 s，打包 1.17–1.20 s，一个 step 最多装 14 条（RS7）。对比 H100 TP1，c16 TTFT P99 的差距从 7.8× 缩到 1.9×（H100 是 146 ms）。</p>
+
+<h3>打包参数实验（c32）</h3>
+<table>
+  <tr><th>配置</th><th class="num">TTFT 均值 / 中位 / P99</th><th class="num">TPOT</th><th class="num">tok/s</th><th>结论</th></tr>
+  <tr><td>RS7：pack_max 16，budget 4096</td><td class="num">354 / 300 / 581</td><td class="num">17.24</td><td class="num">1753</td><td>推荐</td></tr>
+  <tr><td>RS7pm32：pack_max 32</td><td class="num">327 / 338 / 586</td><td class="num">17.40</td><td class="num">1740</td><td>在噪声范围内，budget 先成为上限</td></tr>
+  <tr><td>RS8：pack_max 32，budget 8192，加 8192 bucket</td><td class="num">429 / 458 / 544</td><td class="num">17.26</td><td class="num">1737</td><td>P99 略好，但均值和中位数明显变差，不采用</td></tr>
+</table>
+
+<h2>9. 局限</h2>
+<ul>
+  <li><b>中位数略有上升</b>：同一个打包 step 里最短的请求要等最长的请求一起算完。</li>
+  <li><b>长 prompt 仍然串行</b>：总长超过 pack_budget（4096）就不打包；random 3000 token 以上的负载和不打包相同（±1–2%）。</li>
+  <li><b>跨序列的计算浪费</b>：跨序列的下三角 tile 照样会计算，计算量约等于对整个 T 做 causal。设计阶段估计额外开销 0–10 ms，没有单独测过。</li>
+  <li><b>功能限制</b>：只支持 all_greedy，不支持结构化输出、投机解码、多模态；前缀命中的请求不打包。</li>
+  <li><b>工程形态</b>：目前是对 vllm-neuron 0.29 的字符串替换补丁，要贡献上游就得重写成正式代码，并把 <code>pack_bound_*</code> / <code>pack_valid</code> 定成各模型通用的接口。</li>
+</ul>
+
+<footer>
+  数据来源：<code>research-qwen3-30b/REPORT.md</code> 第 1.4、2.6 节，<code>multi_prefill_design.md</code>，<code>results/RS3</code>、<code>RS7</code>、<code>RS7pm32</code>、<code>RS8</code>。实现见 <code>scripts/p5_patch_pack.py</code> 和 <code>pkg_rs3/model_bf16.py</code>。
+</footer>
+</main>
+<script>
+  // 块对角 causal mask 示意：16 段，序列分界 [0,2) [2,6) [6,12) [12,16)，最后一条含 padding
+  (function () {
+    var bounds = [[0, 2], [2, 6], [6, 12], [12, 16]];
+    var m = document.getElementById("mask");
+    function seqOf(i) { for (var k = 0; k < bounds.length; k++) if (i >= bounds[k][0] && i < bounds[k][1]) return k; }
+    for (var q = 0; q < 16; q++) {
+      for (var k = 0; k < 16; k++) {
+        var d = document.createElement("div");
+        var s = seqOf(q);
+        if (k <= q && k >= bounds[s][0]) d.className = "on" + s;
+        m.appendChild(d);
+      }
+    }
+  })();
+</script>
+</body>
+</html>

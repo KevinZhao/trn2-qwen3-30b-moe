@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4.1 decode MoE kernel：padding 白算与交错改造（动画）</title>
+<style>
+  :root {
+    --bg:#ffffff; --fg:#1f2328; --muted:#59636e; --line:#d1d9e0; --soft:#f6f8fa;
+    --dma:#4c8bf5; --pe:#1a9a50; --pad:#9aa3ad; --wait:#d1d9e0; --tail:#cf222e; --tail-soft:#ffebe9;
+    --good:#1a7f37; --accent:#0969da; --head:#8250df;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#0d1117; --fg:#e6edf3; --muted:#9198a1; --line:#3d444d; --soft:#151b23;
+      --dma:#4493f8; --pe:#3fb950; --pad:#6e7681; --wait:#30363d; --tail:#f85149; --tail-soft:#25171c;
+      --good:#3fb950; --accent:#4493f8; --head:#a371f7;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg);
+         font:15px/1.7 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Segoe UI",sans-serif; }
+  main { max-width:1040px; margin:0 auto; padding:28px 24px 60px; }
+  h1 { font-size:24px; margin:0 0 4px; }
+  h2 { font-size:18px; margin:32px 0 10px; padding-bottom:6px; border-bottom:1px solid var(--line); }
+  .sub { color:var(--muted); margin:0 0 18px; font-size:14px; }
+  code { font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:var(--soft);
+         border:1px solid var(--line); border-radius:4px; padding:0 4px; }
+  pre { background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:12px 14px; overflow-x:auto;
+        font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; margin:8px 0; }
+  .c { color:var(--muted); }
+  .controls { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:6px 0 10px; }
+  button { font:inherit; font-size:14px; padding:4px 14px; border-radius:6px; border:1px solid var(--line);
+           background:var(--soft); color:var(--fg); cursor:pointer; }
+  button:hover { border-color:var(--accent); }
+  button.on { border-color:var(--accent); color:var(--accent); }
+  .controls label { font-size:13px; color:var(--muted); margin-left:8px; }
+  .stage { border:1px solid var(--line); border-radius:10px; padding:14px 14px 6px; background:var(--bg); }
+  svg { display:block; width:100%; height:auto; }
+  .caption { min-height:52px; margin:10px 2px 4px; padding:10px 14px; border-radius:8px; background:var(--soft);
+             border-left:4px solid var(--accent); font-size:14.5px; transition:border-color .3s; }
+  .legend { display:flex; gap:16px; flex-wrap:wrap; font-size:13px; color:var(--muted); margin:6px 2px 0; }
+  .sw { display:inline-block; width:14px; height:12px; border-radius:2px; vertical-align:-1px; margin-right:5px; }
+  table { border-collapse:collapse; width:100%; font-size:14px; margin:8px 0 12px; }
+  th, td { border:1px solid var(--line); padding:6px 10px; text-align:left; vertical-align:top; }
+  th { background:var(--soft); }
+  td.n { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .note { color:var(--muted); font-size:13px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:760px) { .grid2 { grid-template-columns:1fr; } }
+  .card { border:1px solid var(--line); border-radius:8px; padding:10px 14px; background:var(--soft); font-size:14px; }
+  .card b.t { display:block; margin-bottom:4px; }
+</style>
+</head>
+<body>
+<main>
+<h1>decode MoE kernel：padding 白算，以及交错改造</h1>
+<p class="sub">对应分享文档 4.1 节（kernel p2_fused11n → p2_fused11o / 11p，仍是 BF16）。动画是示意，时间单位按比例缩小，真实数字见文末。</p>
+
+<h2>1. 背景：kernel 怎么遍历专家</h2>
+<div class="grid2">
+  <div class="card">
+    <b class="t">按专家并集遍历</b>
+    一个 decode step 有 T 个 token，每个 token 选 top-8 专家。kernel 先求这 T 个 token 选中专家的<b>并集</b>，再把并集按 slot 奇偶分给 2 个物理核。每个核依次处理自己的 slot：先把该专家的权重 DMA 进来，再做 matmul / 激活 / 加权求和。
+  </div>
+  <div class="card">
+    <b class="t">循环是静态展开的</b>
+    并集里有多少个专家要到运行时才知道（取决于路由），但 NKI 循环要在编译期展开，所以每核固定展开 <code>NSL = min(64, 4T)</code> 个位置。实际只有 n 个是真实专家，<b>多出来的 NSL − n 个就是 padding</b>。T=16 时 NSL=64，每核真实 slot 约 41 个。
+  </div>
+</div>
+<pre><span class="c"># 示意（每个物理核）</span>
+for j in static_range(NSL):            <span class="c"># NSL = min(64, 4T)，编译期常量</span>
+    e = slot_expert[j]                 <span class="c"># j ≥ n 时是越界 id</span>
+    dma(weights[e] → ring_buf[j % R])  <span class="c"># 越界 → DMA 被跳过（oob skip）</span>
+    matmul / act / dve(ring_buf[j % R])<span class="c"># 照样执行；affinity 为 0，结果不影响输出</span></pre>
+<p>decode 受 HBM 带宽限制：真实 slot 的计算要等权重 DMA 到位，PE 在两次 DMA 之间本来就有空档。问题出在 <b>padding 位置排在哪里</b>。</p>
+
+<h2>2. 动画：改造前后的时间线</h2>
+<div class="controls">
+  <button id="play" class="on">暂停</button>
+  <button id="replay">重播</button>
+  <label>速度
+    <select id="speed">
+      <option value="0.5">0.5×</option>
+      <option value="1" selected>1×</option>
+      <option value="2">2×</option>
+    </select>
+  </label>
+</div>
+<div class="stage">
+  <svg id="svg" viewBox="0 0 1000 430" role="img" aria-label="改造前后 DMA 与计算时间线对比动画"></svg>
+  <div class="caption" id="caption"></div>
+  <div class="legend">
+    <span><span class="sw" style="background:var(--dma)"></span>真实专家的权重 DMA</span>
+    <span><span class="sw" style="background:var(--pe)"></span>真实专家的计算</span>
+    <span><span class="sw" style="background:var(--pad)"></span>padding 位置的计算（白算，结果被乘 0）</span>
+    <span><span class="sw" style="background:var(--wait);border:1px dashed var(--muted)"></span>计算单元空等 DMA</span>
+  </div>
+</div>
+<p class="note">示例：每核 8 个真实 slot + 4 个 padding，一次 DMA 占 3 个时间单位，一次计算占 1 个。比例只为演示；真实 kernel 在 T=16 时每核约 41 个真实 slot、23 个 padding。</p>
+
+<h2>3. 改造做了什么</h2>
+<table>
+  <tr><th style="width:24%"></th><th>改造前（11n）</th><th>改造后（11o / 11p）</th></tr>
+  <tr><td>处理顺序</td><td>slot 0, 1, 2, …, NSL−1 按自然顺序；padding 一定是最后那一批</td><td>前 R 个 slot 不动（ring buffer 预热，语义不变），其余 slot 按<b>位反转顺序</b>处理，把 padding 打散到真实 slot 之间</td></tr>
+  <tr><td>padding 的计算</td><td>最后一次 DMA 结束后，padding 的 matmul / ACT / DVE 排成一条<b>串行尾巴</b>，没有 DMA 可以重叠</td><td>落在两次 DMA 之间的空档里，被 DMA 时间盖住</td></tr>
+  <tr><td>索引方式</td><td>step = slot</td><td>ring buffer 和 DMA 提前量按处理 <b>step</b> 编号；专家 id 和 affinity 列按 <b>slot</b> 编号</td></tr>
+  <tr><td>T 的上限</td><td>16（T=32 要调两次）</td><td>11p 支持 T≤32：T&gt;16 时 down 投影累加到 2 个 64 行的 PE tile</td></tr>
+  <tr><td>数值</td><td colspan="2">不变：padding 的 affinity 仍是 0，只是换了计算顺序；GSM8K 0.934 → 0.934</td></tr>
+</table>
+
+<h2>4. 真实数字</h2>
+<table>
+  <tr><th>证据</th><th class="n">数值</th><th>说明</th></tr>
+  <tr><td>强制截断 NSL（T=16，11n）</td><td class="n">64 / 48 / 40 → 379 / 350 / 323 µs/层</td><td>结果仍正确，说明 40 以上全是 padding；截掉的部分就是白算</td></tr>
+  <tr><td>T=16 每层白算</td><td class="n">约 56 µs</td><td>× 48 层 ≈ 2.7 ms/步，约占 c16 TPOT 的 12%</td></tr>
+  <tr><td>kernel 微基准，每层 µs（T=1/4/8/16/32）</td><td class="n">11n 58/143/236/378/—<br>11p 58/142/226/338/442</td><td>11n 的 T=32 要调两次 T=16；T=1 没有 padding，所以不变</td></tr>
+  <tr><td>e2e 纯 decode bs16 每步</td><td class="n">21.09 → 18.25 ms（−13.5%）</td><td>ctx 约 128–640，ITL 中位数</td></tr>
+  <tr><td>ShareGPT c16</td><td class="n">TPOT 22.53 → 20.20 ms（−10%）<br>吞吐 688 → 763 tok/s（+11%）</td><td>纯 BF16，零数值风险；不接受 FP8 时可以单独用这一步</td></tr>
+</table>
+
+</main>
+<script>
+(function () {
+  // ---------- 模拟：DMA 按处理顺序背靠背发出；真实 slot 的计算要等自己的 DMA，padding 不等 ----------
+  var DMA = 3, CMP = 1;
+  function simulate(order) {
+    var dmaT = 0, pe = 0, dmas = [], cmps = [], waits = [];
+    order.forEach(function (s) {
+      if (s.real) {
+        var d0 = dmaT, d1 = dmaT + DMA; dmaT = d1;
+        dmas.push({ s: d0, e: d1, label: s.label });
+        var c0 = Math.max(pe, d1);
+        if (c0 > pe) waits.push({ s: pe, e: c0 });
+        cmps.push({ s: c0, e: c0 + CMP, label: s.label, pad: false });
+        pe = c0 + CMP;
+      } else {
+        cmps.push({ s: pe, e: pe + CMP, label: s.label, pad: true });
+        pe = pe + CMP;
+      }
+    });
+    return { dmas: dmas, cmps: cmps, waits: waits, end: pe, dmaEnd: dmaT };
+  }
+  var R = [], P = [];
+  for (var i = 0; i < 8; i++) R.push({ real: true, label: "E" + i });
+  for (var j = 0; j < 4; j++) P.push({ real: false, label: "pad" });
+  var before = simulate(R.concat(P));
+  var after = simulate([R[0], P[0], R[1], P[1], R[2], P[2], R[3], P[3], R[4], R[5], R[6], R[7]]);
+  var TMAX = 30;
+
+  // ---------- 绘制 ----------
+  var NS = "http://www.w3.org/2000/svg", svg = document.getElementById("svg");
+  var X0 = 150, X1 = 980, U = (X1 - X0) / TMAX;
+  function el(tag, attrs, parent) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) {
+      var v = attrs[k];
+      if ((k === "fill" || k === "stroke") && String(v).indexOf("var(") === 0) e.style.setProperty(k, v);
+      else e.setAttribute(k, v);
+    }
+    (parent || svg).appendChild(e); return e;
+  }
+  function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+  var defs = el("defs", {});
+  var pat = el("pattern", { id: "hatch", width: 6, height: 6, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" }, defs);
+  el("rect", { width: 6, height: 6, fill: "var(--pad)" }, pat);
+  el("line", { x1: 0, y1: 0, x2: 0, y2: 6, stroke: "var(--bg)", "stroke-width": 2, opacity: 0.45 }, pat);
+
+  function panel(y, title, color, sim) {
+    var g = el("g", {});
+    el("text", { x: 0, y: y - 12, fill: color, "font-size": 15, "font-weight": 600 }, g).textContent = title;
+    var lanes = [{ name: "DMA 队列（权重）", y: y }, { name: "计算（PE/ACT/DVE）", y: y + 46 }];
+    lanes.forEach(function (l) {
+      el("text", { x: 0, y: l.y + 22, fill: "var(--muted)", "font-size": 13 }, g).textContent = l.name;
+      el("rect", { x: X0, y: l.y, width: X1 - X0, height: 34, fill: "var(--soft)", stroke: "var(--line)", rx: 4 }, g);
+    });
+    var blocks = [];
+    sim.waits.forEach(function (w) {
+      var r = el("rect", { x: X0 + w.s * U, y: y + 46 + 6, width: 0, height: 22, fill: "var(--wait)", stroke: "var(--muted)",
+                           "stroke-dasharray": "3 3", "stroke-width": 0.8, rx: 3 }, g);
+      blocks.push({ r: r, s: w.s, e: w.e });
+    });
+    sim.dmas.forEach(function (d) {
+      var r = el("rect", { x: X0 + d.s * U + 1, y: y + 4, width: 0, height: 26, fill: "var(--dma)", rx: 3 }, g);
+      var t = el("text", { x: X0 + (d.s + d.e) / 2 * U, y: y + 22, fill: "#fff", "font-size": 12, "text-anchor": "middle", opacity: 0 }, g);
+      t.textContent = d.label;
+      blocks.push({ r: r, s: d.s, e: d.e, t: t, gap: 2 });
+    });
+    sim.cmps.forEach(function (c) {
+      var r = el("rect", { x: X0 + c.s * U + 1, y: y + 46 + 4, width: 0, height: 26, fill: c.pad ? "url(#hatch)" : "var(--pe)", rx: 3 }, g);
+      var t = el("text", { x: X0 + (c.s + c.e) / 2 * U, y: y + 46 + 21, fill: c.pad ? "var(--fg)" : "#fff",
+                           "font-size": c.pad ? 10 : 11, "text-anchor": "middle", opacity: 0 }, g);
+      t.textContent = c.label;
+      blocks.push({ r: r, s: c.s, e: c.e, t: t, gap: 2 });
+    });
+    // 结束标记
+    var endX = X0 + sim.end * U;
+    var endLine = el("line", { x1: endX, y1: y - 4, x2: endX, y2: y + 84, stroke: color, "stroke-width": 2, "stroke-dasharray": "4 3", opacity: 0 }, g);
+    var endTxt = el("text", { x: endX - 6, y: y + 102, fill: color, "font-size": 13, "font-weight": 600, "text-anchor": "end", opacity: 0 }, g);
+    endTxt.textContent = "本层结束：" + sim.end + " 单位";
+    return { blocks: blocks, end: sim.end, endLine: endLine, endTxt: endTxt, y: y };
+  }
+  var pA = panel(40, "改造前（11n）：padding 全排在最后", "var(--tail)", before);
+  var pB = panel(240, "改造后（11o / 11p）：padding 插进 DMA 的空档", "var(--good)", after);
+
+  // 串行尾巴高亮
+  var tailS = before.dmaEnd, tailE = before.end;
+  var tailRect = el("rect", { x: X0 + tailS * U, y: pA.y + 46 - 4, width: (tailE - tailS) * U, height: 42, fill: "none",
+                              stroke: "var(--tail)", "stroke-width": 2, rx: 5, opacity: 0 });
+  var tailTxt = el("text", { x: X0 + tailE * U - 6, y: pA.y + 124, fill: "var(--tail)", "font-size": 13,
+                             "text-anchor": "end", "font-weight": 600, opacity: 0 });
+  tailTxt.textContent = "串行尾巴：没有 DMA 可重叠";
+  // 节省量
+  var saveY = 392;
+  var saveLine = el("line", { x1: X0 + after.end * U, y1: saveY, x2: X0 + before.end * U, y2: saveY, stroke: "var(--good)",
+                              "stroke-width": 3, opacity: 0 });
+  var saveTxt = el("text", { x: X0 + before.end * U, y: saveY + 22, fill: "var(--good)", "font-size": 13,
+                             "text-anchor": "end", "font-weight": 600, opacity: 0 });
+  saveTxt.textContent = "省下 " + (before.end - after.end) + " 单位（" + Math.round((1 - after.end / before.end) * 100) + "%），DMA 总量没变";
+
+  // 时间轴与播放头
+  el("line", { x1: X0, y1: 372, x2: X1, y2: 372, stroke: "var(--line)" });
+  for (var k = 0; k <= TMAX; k += 5) {
+    el("line", { x1: X0 + k * U, y1: 368, x2: X0 + k * U, y2: 376, stroke: "var(--muted)" });
+    el("text", { x: X0 + k * U, y: 362, fill: "var(--muted)", "font-size": 11, "text-anchor": "middle" }).textContent = k;
+  }
+  el("text", { x: 0, y: 376, fill: "var(--muted)", "font-size": 12 }).textContent = "时间（单位）";
+  var head = el("line", { x1: X0, y1: 18, x2: X0, y2: 376, stroke: "var(--accent)", "stroke-width": 1.5, opacity: 0.7 });
+
+  // ---------- 文字说明（随时间切换） ----------
+  var caption = document.getElementById("caption");
+  var steps = [
+    { t: 0,  c: "var(--accent)", h: "两种顺序处理的是同一组 slot：8 个真实专家（E0–E7）+ 4 个 padding。DMA 队列在两种顺序下都背靠背跑满。" },
+    { t: 2,  c: "var(--accent)", h: "真实专家的计算必须等自己的权重 DMA 到位。计算只占 1 个单位，DMA 占 3 个，所以计算单元大部分时间在<b>空等</b>（虚线框）。" },
+    { t: 4,  c: "var(--good)", h: "改造后：E0 算完、等 E1 的 DMA 时，先把一个 padding 的计算插进去。padding 不需要 DMA，<b>正好填进空档</b>。" },
+    { t: 24, c: "var(--tail)", h: "改造前：最后一次 DMA（E7）在 t=24 结束。之前的空档没有用上，而 4 个 padding 的计算还没开始……" },
+    { t: 25, c: "var(--tail)", h: "改造前：E7 算完后，4 个 padding 只能<b>一个接一个串行执行</b>，这段时间没有任何 DMA 可以重叠。改造后到 t=25 就已经结束了。" },
+    { t: 29, c: "var(--good)", h: "结果：DMA 总量完全一样，只是换了计算顺序，本层从 29 单位降到 25 单位。真实 kernel 在 T=16 时每层省约 40 µs（378 → 338 µs），e2e bs16 decode 每步 −13.5%。" }
+  ];
+  function setCaption(t) {
+    var cur = steps[0];
+    for (var i = 0; i < steps.length; i++) if (t >= steps[i].t) cur = steps[i];
+    if (caption.dataset.k !== cur.h) { caption.innerHTML = cur.h; caption.style.borderLeftColor = cur.c; caption.dataset.k = cur.h; }
+  }
+
+  // ---------- 动画循环 ----------
+  var t = 0, playing = true, speed = 1, last = null, HOLD = 4; // 每单位 0.33 s，结束后停留 4 单位
+  function render(tt) {
+    [pA, pB].forEach(function (p) {
+      p.blocks.forEach(function (b) {
+        var w = Math.max(0, Math.min(tt, b.e) - b.s) * U - (b.gap || 0);
+        b.r.setAttribute("width", Math.max(0, w));
+        if (b.t) b.t.setAttribute("opacity", tt >= b.e ? 1 : 0);
+      });
+      var done = tt >= p.end;
+      p.endLine.setAttribute("opacity", done ? 1 : 0);
+      p.endTxt.setAttribute("opacity", done ? 1 : 0);
+    });
+    var showTail = tt >= tailS + 0.2;
+    tailRect.setAttribute("opacity", showTail ? 1 : 0);
+    tailTxt.setAttribute("opacity", tt >= tailE ? 1 : 0);
+    var showSave = tt >= before.end;
+    saveLine.setAttribute("opacity", showSave ? 1 : 0);
+    saveTxt.setAttribute("opacity", showSave ? 1 : 0);
+    var hx = X0 + Math.min(tt, TMAX) * U;
+    head.setAttribute("x1", hx); head.setAttribute("x2", hx);
+    head.setAttribute("opacity", tt < TMAX ? 0.7 : 0);
+    setCaption(Math.min(tt, TMAX));
+  }
+  function frame(ts) {
+    if (last === null) last = ts;
+    var dt = (ts - last) / 1000; last = ts;
+    if (playing) {
+      t += dt * 3 * speed;
+      if (t > TMAX + HOLD) t = 0;
+      render(t);
+    }
+    requestAnimationFrame(frame);
+  }
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var playBtn = document.getElementById("play");
+  function setPlaying(p) { playing = p; playBtn.textContent = p ? "暂停" : "播放"; playBtn.classList.toggle("on", p); }
+  playBtn.onclick = function () { if (t >= TMAX + HOLD - 0.01) t = 0; setPlaying(!playing); };
+  document.getElementById("replay").onclick = function () { t = 0; render(0); setPlaying(true); };
+  document.getElementById("speed").onchange = function (e) { speed = parseFloat(e.target.value); };
+  var m = /t=([0-9.]+)/.exec(location.hash);
+  if (m) { t = parseFloat(m[1]); render(t); setPlaying(false); }
+  else if (reduce) { t = TMAX; render(t); setPlaying(false); } else { render(0); }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

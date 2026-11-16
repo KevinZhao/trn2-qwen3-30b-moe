@@ -1,0 +1,53 @@
+# 示例：新 pod 使用 S3 NEFF 缓存（vllm-neuron 2.33 native 路径）
+#  - serviceAccountName: neff-cache（Pod Identity → 只能读写 <NEFF_CACHE_BUCKET>）
+#  - initContainer 把 S3 上 CACHE_TAG（可多个，空格分隔，取并集）的 NEFF 预拉到 $VLLM_CACHE_ROOT/neuron/native_neff_cache
+#  - 主容器照常启动 vLLM（VLLM_CACHE_ROOT 指向同一目录）；服务 READY 后调用 neff_cache.sh push 把新编译的 NEFF 推回
+apiVersion: v1
+kind: Pod
+metadata: {name: xx-myjob, namespace: trn2-perf, labels: {app: xx}}
+spec:
+  serviceAccountName: neff-cache
+  schedulerName: my-scheduler
+  restartPolicy: Never
+  nodeSelector: {karpenter.sh/nodepool: lx-trn2}          # 按需改
+  tolerations: [{key: aws.amazon.com/neuron, operator: Exists, effect: NoSchedule}]
+  initContainers:
+  - name: neff-prefetch
+    image: public.ecr.aws/neuron/pytorch-inference-vllm-neuronx:0.29.0.1.2.0-neuronx-py314-sdk2.33.0-ubuntu26.04
+    command: ["bash", "-c"]
+    args:
+    - |
+      for t in $PULL_TAGS; do bash /scripts/neff_cache.sh pull $t /data/cache/$CACHE_TAG/vc || exit 1; done
+    env:
+    - {name: CACHE_TAG, value: lx_q235_stock}            # 本地缓存目录名 = S3 前缀名（push 也用它）
+    - {name: PULL_TAGS, value: "lx_q235_stock"}          # 想复用别的配置的 decode 图就多写几个 tag
+    resources: {requests: {cpu: "2", memory: 4Gi}, limits: {cpu: "8", memory: 8Gi}}
+    volumeMounts:
+    - {name: data, mountPath: /data}
+    - {name: scripts, mountPath: /scripts, readOnly: true}
+  containers:
+  - name: c
+    image: public.ecr.aws/neuron/pytorch-inference-vllm-neuronx:0.29.0.1.2.0-neuronx-py314-sdk2.33.0-ubuntu26.04
+    command: ["/bin/bash", "-c"]
+    args:
+    - |
+      export VLLM_CACHE_ROOT=/data/cache/$CACHE_TAG/vc HOME=/data/cache/$CACHE_TAG/home
+      # ……原来的启动脚本（例如 bash /tmp/lx/lx_srv.sh …），等到 "Application startup complete" 后：
+      #   bash /scripts/neff_cache.sh push $CACHE_TAG $VLLM_CACHE_ROOT
+      sleep infinity
+    env:
+    - {name: CACHE_TAG, value: lx_q235_stock}
+    - {name: NODE_NAME, valueFrom: {fieldRef: {fieldPath: spec.nodeName}}}
+    - {name: POD_NAME, valueFrom: {fieldRef: {fieldPath: metadata.name}}}
+    resources:
+      requests: {aws.amazon.com/neuron: "16", vpc.amazonaws.com/efa: "16", cpu: "176", memory: 1800Gi}
+      limits: {aws.amazon.com/neuron: "16", vpc.amazonaws.com/efa: "16", cpu: "176", memory: 1800Gi}
+    securityContext: {capabilities: {add: [IPC_LOCK]}}
+    volumeMounts:
+    - {name: data, mountPath: /data}
+    - {name: shm, mountPath: /dev/shm}
+    - {name: scripts, mountPath: /scripts, readOnly: true}
+  volumes:
+  - {name: data, hostPath: {path: /mnt/k8s-disks/0/lx, type: DirectoryOrCreate}}
+  - {name: shm, emptyDir: {medium: Memory, sizeLimit: 256Gi}}
+  - {name: scripts, configMap: {name: neff-cache-scripts}}

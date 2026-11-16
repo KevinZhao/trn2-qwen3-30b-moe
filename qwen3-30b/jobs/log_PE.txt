@@ -1,0 +1,26 @@
+        gb_type="RuntimeError when making fake tensor call",
+torch._dynamo.exc.TorchRuntimeError: RuntimeError when making fake tensor call
+        gb_type="RuntimeError when making fake tensor call",
+torch._dynamo.exc.TorchRuntimeError: RuntimeError when making fake tensor call
+        gb_type="RuntimeError when making fake tensor call",
+torch._dynamo.exc.TorchRuntimeError: RuntimeError when making fake tensor call
+        gb_type="RuntimeError when making fake tensor call",
+torch._dynamo.exc.TorchRuntimeError: RuntimeError when making fake tensor call
+        gb_type="RuntimeError when making fake tensor call",
+torch._dynamo.exc.TorchRuntimeError: RuntimeError when making fake tensor call
+        gb_type="RuntimeError when making fake tensor call",
+torch._dynamo.exc.TorchRuntimeError: RuntimeError when making fake tensor call
+        gb_type="RuntimeError when making fake tensor call",
+torch._dynamo.exc.TorchRuntimeError: RuntimeError when making fake tensor call
+        gb_type="RuntimeError when making fake tensor call",
+torch._dynamo.exc.TorchRuntimeError: RuntimeError when making fake tensor call
+        gb_type="RuntimeError when making fake tensor call",
+torch._dynamo.exc.TorchRuntimeError: RuntimeError when making fake tensor call
+        gb_type="RuntimeError when making fake tensor call",
+torch._dynamo.exc.TorchRuntimeError: RuntimeError when making fake tensor call
+        gb_type="RuntimeError when making fake tensor call",
+torch._dynamo.exc.TorchRuntimeError: RuntimeError when making fake tensor call
+        gb_type="RuntimeError when making fake tensor call",
+torch._dynamo.exc.TorchRuntimeError: RuntimeError when making fake tensor call
+PE_DONE
+JOBDONE

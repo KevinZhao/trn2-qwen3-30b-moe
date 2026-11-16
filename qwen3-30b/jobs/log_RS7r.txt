@@ -1,0 +1,73 @@
+patched OK /opt/conda/lib/python3.14/site-packages/vllm_neuron/vllm/core/scheduler.py
+/tmp/ni2e/rs_srv.sh: line 41: /proc/321/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/993/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/994/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/995/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/996/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/6951/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/7623/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/7624/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/7625/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/7626/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21242/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21246/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21247/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21251/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21255/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21259/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21263/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21267/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21271/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21275/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21279/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21283/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21287/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21291/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21295/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21299/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21303/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21308/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21312/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21316/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21320/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21323/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21326/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21327/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21332/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21336/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21337/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21390/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21392/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21411/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21494/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/24041/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/24381/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/24713/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/24714/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/24715/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/24716/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/47560/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/47900/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/48243/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/48244/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/48245/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/48246/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/62346/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/62694/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/63032/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/63033/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/63034/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/63035/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/104351/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/104688/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/105023/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/105024/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/105025/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/105026/environ: No such process
+/tmp/ni2e/rs_bench.sh: line 52: /tmp/rs_out_RS7/resets: No such file or directory
+grep: /tmp/rs_out_RS7/resets: No such file or directory
+neffs_after 89 new=0
+RESULT PASS 7.6s
+/tmp/rs_out_RS7/READY
+RS7R_READY
+JOBDONE

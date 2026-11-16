@@ -1,0 +1,57 @@
+Success	RS4   VB  rn1024_c1_s42      n=  8 fail=0 | TTFT    84.3    83.3    90.8 | TPOT   5.89 p99   5.90 | ITL   5.90 max     6.4 | tok/s  161.2 in=8192
+RS4   VB  rn1024_c4_s42      n= 16 fail=0 | TTFT   228.7   270.0   281.4 | TPOT   8.89 p99   9.51 | ITL   8.69 max   200.1 | tok/s  409.9 in=16384
+RS4   VB  rn256_c1_s42       n=  8 fail=0 | TTFT    61.5    60.9    65.8 | TPOT   5.85 p99   5.86 | ITL   5.84 max    12.4 | tok/s  164.8 in=2048
+RS4   VB  rn256_c4_s42       n= 16 fail=0 | TTFT   108.1   120.8   192.7 | TPOT   8.43 p99   9.01 | ITL   8.18 max    71.3 | tok/s  453.0 in=4096
+RS4   VB  rn3000_c1_s42      n=  8 fail=0 | TTFT   208.2   206.7   222.1 | TPOT   6.11 p99   6.14 | ITL   6.11 max    17.7 | tok/s  144.8 in=24000
+RS4   VB  rn3000_c2_s7       n=  2 fail=0 | TTFT   316.3   316.3   413.3 | TPOT   9.36 p99   9.72 | ITL   8.97 max   208.8 | tok/s  189.0 in=6000
+RS4   VB  rn3000_c4_s42      n= 16 fail=0 | TTFT   487.2   506.0   828.8 | TPOT  10.23 p99  11.44 | ITL   8.97 max   216.0 | tok/s  330.2 in=48000
+RS4   VB  rn6000_c1_s42      n=  8 fail=0 | TTFT   413.1   413.2   426.2 | TPOT   6.36 p99   6.37 | ITL   6.38 max     7.5 | tok/s  125.8 in=48000
+RS4   VB  rn6000_c4_s42      n= 16 fail=0 | TTFT  1001.0   996.4  1602.2 | TPOT  11.91 p99  14.22 | ITL   9.57 max   407.6 | tok/s  253.3 in=96000
+RS4   VB  rn7000_c16_s42     n= 32 fail=0 | TTFT  2456.7  1620.0  6370.1 | TPOT  33.67 p99  41.33 | ITL  18.35 max   414.9 | tok/s  368.7 in=224000
+RS4   VB  sg_c16_s123        n= 64 fail=0 | TTFT   229.2   254.6   380.1 | TPOT  14.62 p99  15.28 | ITL  14.37 max   204.6 | tok/s 1039.9 in=16789
+RS4   VB  sg_c16_s42         n= 64 fail=0 | TTFT   251.1   268.8   307.6 | TPOT  14.70 p99  15.28 | ITL  14.48 max   216.4 | tok/s 1046.6 in=17268
+RS4   VB  sg_c1_s42          n= 12 fail=0 | TTFT    62.3    55.6    89.4 | TPOT   5.85 p99   5.87 | ITL   5.85 max    11.1 | tok/s  167.7 in=2510
+RS4   VB  sg_c2_s7           n=  4 fail=0 | TTFT    87.8    88.4   116.5 | TPOT   8.29 p99   8.35 | ITL   8.23 max    67.2 | tok/s  236.8 in=298
+RS4   VB  sg_c4_s123         n= 32 fail=0 | TTFT   126.9   114.8   253.3 | TPOT   8.83 p99   9.20 | ITL   8.56 max   200.1 | tok/s  426.8 in=10227
+RS4   VB  sg_c4_s42          n= 32 fail=0 | TTFT   127.8   124.0   200.1 | TPOT   8.64 p99   8.92 | ITL   8.50 max    86.2 | tok/s  449.3 in=8869
+09:03:06 phase nan
+RESULT PASS 7.6s
+resets  non200 
+errlines 0
+errlines2 0
+09:03:13 bench done
+09:04:04 phase perf
+09:40:39 lock got
+09:48:42 unlock
+09:48:42 phase ttft
+10:01:00 lock got
+10:01:07 unlock
+10:01:07 phase gsm
+GSM {"n": 500, "acc": 0.946, "wall_s": 353}
+resets 16 non200 0
+errlines 0
+errlines2 0
+10:07:00 bench done
+TTFT len=  128 med=   53.3 all=[54.2, 53.3, 53.3]
+TTFT len=  512 med=   65.2 all=[72.9, 64.6, 65.2]
+TTFT len= 1024 med=   79.7 all=[85.4, 79.7, 79.1]
+TTFT len= 2048 med=  119.7 all=[125.5, 119.7, 118.3]
+TTFT len= 2049 med=  197.4 all=[197.4, 197.7, 196.5]
+TTFT len= 3000 med=  197.0 all=[197.0, 197.5, 196.9]
+TTFT len= 4096 med=  199.1 all=[197.7, 199.7, 199.1]
+TTFT len= 4097 med=  390.6 all=[390.3, 390.6, 390.6]
+TTFT len= 6000 med=  390.2 all=[391.7, 390.2, 390.1]
+TTFT len= 8000 med=  392.1 all=[392.7, 392.0, 392.1]
+    711 1
+     26 2
+     12 3
+      4 4
+      1 5
+      1 7
+      1 8
+      3 10
+      4 12
+      3 13
+      1 14
+      2 15
+	

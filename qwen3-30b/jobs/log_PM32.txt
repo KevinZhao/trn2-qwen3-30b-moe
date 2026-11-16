@@ -1,0 +1,31 @@
+{"dsbpc": 1, "dsbp": 1, "pack_max": 16, "tag": "p5check_pack16"}
+(EngineCore pid=62694) 2026-11-08 12:03:36,825 - INFO - scheduler.py:1532 - P5 knobs: pack_max=16 pack_budget=4096
+(EngineCore pid=62694) 2026-11-08 12:03:36,825 - INFO - scheduler.py:1532 - P5 knobs: pack_max=16 pack_budget=4096
+psteps 713 42 19
+RS7pm32 VB  rn1024_c1_s42      n=  8 fail=0 | TTFT    83.0    82.7    85.8 | TPOT   5.89 p99   5.90 | ITL   5.90 max     7.8 | tok/s  161.4 in=8192
+RS7pm32 VB  rn1024_c4_s42      n= 16 fail=0 | TTFT   225.5   267.5   278.1 | TPOT   8.89 p99   9.49 | ITL   8.69 max   199.4 | tok/s  410.8 in=16384
+RS7pm32 VB  rn256_c1_s42       n=  8 fail=0 | TTFT    58.2    57.5    61.2 | TPOT   5.84 p99   5.84 | ITL   5.84 max     6.8 | tok/s  165.4 in=2048
+RS7pm32 VB  rn256_c4_s42       n= 16 fail=0 | TTFT   103.4    83.3   180.5 | TPOT   8.46 p99   9.05 | ITL   8.19 max    71.4 | tok/s  452.3 in=4096
+RS7pm32 VB  rn3000_c1_s42      n=  8 fail=0 | TTFT   204.7   203.7   210.7 | TPOT   6.11 p99   6.11 | ITL   6.11 max     6.5 | tok/s  145.3 in=24000
+RS7pm32 VB  rn3000_c2_s7       n=  2 fail=0 | TTFT   313.7   313.7   407.1 | TPOT   9.35 p99   9.70 | ITL   8.98 max   205.1 | tok/s  189.4 in=6000
+RS7pm32 VB  rn3000_c4_s42      n= 16 fail=0 | TTFT   484.0   504.3   816.9 | TPOT  10.22 p99  11.39 | ITL   8.96 max   208.4 | tok/s  331.0 in=48000
+RS7pm32 VB  rn6000_c1_s42      n=  8 fail=0 | TTFT   405.8   405.3   416.0 | TPOT   6.36 p99   6.36 | ITL   6.38 max     8.7 | tok/s  126.2 in=48000
+RS7pm32 VB  rn6000_c4_s42      n= 16 fail=0 | TTFT   990.1   985.6  1586.5 | TPOT  11.87 p99  14.17 | ITL   9.59 max   399.9 | tok/s  254.7 in=96000
+RS7pm32 VB  rn7000_c16_s42     n= 32 fail=0 | TTFT  2421.1  1600.9  6276.7 | TPOT  33.48 p99  41.04 | ITL  18.40 max   407.3 | tok/s  371.7 in=224000
+RS7pm32 VB  sg_c16_s123        n= 64 fail=0 | TTFT   229.2   251.0   408.8 | TPOT  14.70 p99  15.31 | ITL  14.41 max   205.2 | tok/s 1033.1 in=16789
+RS7pm32 VB  sg_c16_s42         n= 64 fail=0 | TTFT   252.9   266.5   271.3 | TPOT  14.28 p99  14.62 | ITL  14.37 max   204.9 | tok/s 1085.1 in=17268
+RS7pm32 VB  sg_c1_s42          n= 12 fail=0 | TTFT    61.6    55.5    86.1 | TPOT   5.85 p99   5.87 | ITL   5.84 max     8.3 | tok/s  167.9 in=2510
+RS7pm32 VB  sg_c2_s7           n=  4 fail=0 | TTFT    87.3    86.4   118.7 | TPOT   8.28 p99   8.34 | ITL   8.22 max    69.0 | tok/s  237.1 in=298
+RS7pm32 VB  sg_c32_s42         n=128 fail=0 | TTFT   326.7   337.7   586.3 | TPOT  17.40 p99  18.06 | ITL  16.92 max   206.4 | tok/s 1739.6 in=31028
+RS7pm32 VB  sg_c4_s123         n= 32 fail=0 | TTFT   100.2    81.9   199.3 | TPOT   8.84 p99   9.24 | ITL   8.54 max   120.5 | tok/s  429.1 in=10227
+RS7pm32 VB  sg_c4_s42          n= 32 fail=0 | TTFT   133.2   141.3   192.7 | TPOT   8.62 p99   9.02 | ITL   8.50 max   120.9 | tok/s  450.3 in=8869
+03:43:32 lock got
+03:51:29 unlock
+03:51:29 phase gsm
+GSM {"n": 500, "acc": 0.946, "wall_s": 352}
+resets 17 non200 0
+errlines 0
+errlines2 0
+03:57:21 bench done
+PM32_DONE
+JOBDONE

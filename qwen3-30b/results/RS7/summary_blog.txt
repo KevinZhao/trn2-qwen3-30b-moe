@@ -1,0 +1,32 @@
+Success	RS7   VB  rn1024_c1_s42      n=  8 fail=0 | TTFT    85.4    85.2    89.1 | TPOT   5.90 p99   5.90 | ITL   5.90 max     7.6 | tok/s  161.1 in=8192
+RS7   VB  rn1024_c4_s42      n= 16 fail=0 | TTFT   226.3   267.3   282.8 | TPOT   8.90 p99   9.53 | ITL   8.70 max   201.6 | tok/s  410.2 in=16384
+RS7   VB  rn256_c1_s42       n=  8 fail=0 | TTFT    59.1    58.4    64.8 | TPOT   5.84 p99   5.84 | ITL   5.84 max     6.9 | tok/s  165.3 in=2048
+RS7   VB  rn256_c4_s42       n= 16 fail=0 | TTFT   106.9   118.6   187.8 | TPOT   8.42 p99   9.02 | ITL   8.19 max    71.1 | tok/s  454.0 in=4096
+RS7   VB  rn3000_c1_s42      n=  8 fail=0 | TTFT   207.0   205.5   214.2 | TPOT   6.11 p99   6.11 | ITL   6.12 max     8.0 | tok/s  145.1 in=24000
+RS7   VB  rn3000_c2_s7       n=  2 fail=0 | TTFT   335.5   335.5   431.1 | TPOT   9.37 p99   9.73 | ITL   8.97 max   212.4 | tok/s  187.5 in=6000
+RS7   VB  rn3000_c4_s42      n= 16 fail=0 | TTFT   470.6   503.3   792.4 | TPOT  10.26 p99  11.39 | ITL   8.96 max   208.3 | tok/s  331.1 in=48000
+RS7   VB  rn6000_c1_s42      n=  8 fail=0 | TTFT   405.0   404.7   415.0 | TPOT   6.37 p99   6.38 | ITL   6.39 max     6.8 | tok/s  126.1 in=48000
+RS7   VB  rn6000_c4_s42      n= 16 fail=0 | TTFT   991.6   989.5  1583.3 | TPOT  11.88 p99  14.17 | ITL   9.59 max   399.5 | tok/s  254.4 in=96000
+RS7   VB  rn7000_c16_s42     n= 32 fail=0 | TTFT  2432.6  1600.4  6302.7 | TPOT  33.46 p99  41.03 | ITL  18.38 max   407.2 | tok/s  371.5 in=224000
+RS7   VB  sg_c16_s123        n= 64 fail=0 | TTFT   265.0   266.0   380.5 | TPOT  14.44 p99  14.92 | ITL  14.38 max   206.1 | tok/s 1048.6 in=16789
+RS7   VB  sg_c16_s42         n= 64 fail=0 | TTFT   242.8   255.3   276.1 | TPOT  14.43 p99  14.94 | ITL  14.37 max   209.3 | tok/s 1074.9 in=17268
+RS7   VB  sg_c1_s42          n= 12 fail=0 | TTFT    63.6    55.8    96.5 | TPOT   5.85 p99   5.88 | ITL   5.85 max    12.1 | tok/s  167.7 in=2510
+RS7   VB  sg_c2_s7           n=  4 fail=0 | TTFT    85.9    86.4   114.5 | TPOT   8.29 p99   8.35 | ITL   8.23 max    74.1 | tok/s  236.7 in=298
+RS7   VB  sg_c32_s42         n=128 fail=0 | TTFT   354.1   299.5   580.5 | TPOT  17.24 p99  17.89 | ITL  16.92 max   208.9 | tok/s 1753.0 in=31028
+RS7   VB  sg_c4_s123         n= 32 fail=0 | TTFT   105.5    77.1   252.3 | TPOT   8.87 p99   9.19 | ITL   8.57 max   198.0 | tok/s  426.3 in=10227
+RS7   VB  sg_c4_s42          n= 32 fail=0 | TTFT   107.3    96.7   207.7 | TPOT   8.85 p99   9.20 | ITL   8.54 max   123.9 | tok/s  432.4 in=8869
+TTFT len=  128 med=   53.5 all=[54.4, 53.5, 53.2]
+TTFT len=  512 med=   65.4 all=[68.4, 65.4, 64.7]
+TTFT len= 1024 med=   80.3 all=[82.3, 80.3, 79.6]
+TTFT len= 2048 med=  118.7 all=[121.2, 118.7, 118.3]
+TTFT len= 2049 med=  196.9 all=[197.6, 196.9, 196.6]
+TTFT len= 3000 med=  196.5 all=[196.6, 196.5, 196.5]
+TTFT len= 4096 med=  197.2 all=[197.1, 197.3, 197.2]
+TTFT len= 4097 med=  389.5 all=[389.5, 389.2, 389.9]
+TTFT len= 6000 med=  389.1 all=[389.3, 389.1, 389.1]
+TTFT len= 8000 med=  390.4 all=[390.6, 390.4, 390.4]
+[serial] pack_max=1 wall=6.90s max_req_latency=0.44s steplog(max_reqs_per_prefill_step, multi_req_prefill_steps)=(1, 0)
+[packed] pack_max=16 wall=1.17s max_req_latency=1.17s steplog(max_reqs_per_prefill_step, multi_req_prefill_steps)=(14, 1)
+[packed2] pack_max=16 wall=1.20s max_req_latency=1.20s steplog(max_reqs_per_prefill_step, multi_req_prefill_steps)=(13, 2)
+784 56 16
+	

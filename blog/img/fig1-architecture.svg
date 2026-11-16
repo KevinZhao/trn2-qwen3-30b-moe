@@ -1,0 +1,84 @@
+<svg viewBox="0 0 880 540" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif">
+<rect width="880" height="540" fill="white"/>
+<text x="440.0" y="30.0" text-anchor="middle" fill="#0b0b0b" font-size="17" font-weight="700">参考架构：私有 EKS 上的 Trainium2 MoE 推理</text>
+<rect x="16" y="46" width="848" height="476" rx="14" fill="white" stroke="#a0a7b4" stroke-width="1.5" stroke-dasharray="7,5"/>
+<text x="32.0" y="70.0" text-anchor="start" fill="#4a5160" font-size="12.5">AWS Region</text>
+<rect x="32" y="82" width="650" height="424" rx="14" fill="#f3fbf6" stroke="#1f9d55" stroke-width="2"/>
+<text x="48.0" y="106.0" text-anchor="start" fill="#1f7a43" font-size="13" font-weight="600">私有 VPC（无公网入口）</text>
+<rect x="48" y="122" width="120" height="72" rx="10" fill="white" stroke="#1f9d55" stroke-width="2"/>
+<text x="108.0" y="146.0" text-anchor="middle" fill="#0b0b0b" font-size="12.5" font-weight="600">跳板机</text>
+<text x="108.0" y="165.0" text-anchor="middle" fill="#52514e" font-size="9.5">SSM Session Manager</text>
+<text x="108.0" y="180.0" text-anchor="middle" fill="#52514e" font-size="9.5">kubectl / 压测编排</text>
+<line x1="108" y1="236" x2="108.0" y2="207.0" stroke="#4a5160" stroke-width="2"/><path d="M108,198 L103.0,207.0 L113.0,207.0 Z" fill="#4a5160"/>
+<text x="108.0" y="254.0" text-anchor="middle" fill="#0b0b0b" font-size="11.5" font-weight="600">运维人员</text>
+<text x="108.0" y="271.0" text-anchor="middle" fill="#8a8984" font-size="10">经 SSM 接入</text>
+<line x1="170" y1="158" x2="179.0" y2="158.0" stroke="#4a5160" stroke-width="2"/><path d="M188,158 L179.0,153.0 L179.0,163.0 Z" fill="#4a5160"/>
+<rect x="190" y="112" width="476" height="380" rx="12" fill="white" stroke="#f59b00" stroke-width="2.5"/>
+<path d="M190,124 Q190,112 202,112 H654 Q666,112 666,124 V138 H190 Z" fill="#f59b00"/>
+<text x="428.0" y="130.0" text-anchor="middle" fill="white" font-size="12.5" font-weight="600">Amazon EKS（私有 API endpoint）</text>
+<rect x="206" y="150" width="444" height="46" rx="8" fill="#f2f4f8" stroke="#9aa3b2" stroke-width="1.2"/>
+<text x="222.0" y="170.0" text-anchor="start" fill="#0b0b0b" font-size="11.5" font-weight="600">系统节点组</text>
+<text x="222.0" y="187.0" text-anchor="start" fill="#52514e" font-size="9.5">CoreDNS · AWS Load Balancer Controller · Karpenter · Pod Identity Agent</text>
+<rect x="206" y="206" width="444" height="274" rx="8" fill="#fffbec" stroke="#f59b00" stroke-width="1.5"/>
+<text x="222.0" y="228.0" text-anchor="start" fill="#b35c00" font-size="12" font-weight="600">Karpenter NodePool：trn2.48xlarge</text>
+<text x="222.0" y="246.0" text-anchor="start" fill="#52514e" font-size="9.5">16 颗 Trainium2，每颗 96 GiB HBM · 本地 NVMe：模型权重与 NEFF 编译缓存</text>
+<rect x="222" y="260" width="46" height="40" rx="6" fill="#2a78d6"/>
+<text x="245.0" y="277.0" text-anchor="middle" fill="white" font-size="9.5" font-weight="600">芯片 0</text>
+<text x="245.0" y="291.0" text-anchor="middle" fill="white" font-size="8.5">服务实例</text>
+<rect x="275" y="260" width="46" height="40" rx="6" fill="white" stroke="#d9c9a0" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="298.0" y="284.0" text-anchor="middle" fill="#8a8984" font-size="9">芯片 1</text>
+<rect x="328" y="260" width="46" height="40" rx="6" fill="white" stroke="#d9c9a0" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="351.0" y="284.0" text-anchor="middle" fill="#8a8984" font-size="9">芯片 2</text>
+<rect x="381" y="260" width="46" height="40" rx="6" fill="white" stroke="#d9c9a0" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="404.0" y="284.0" text-anchor="middle" fill="#8a8984" font-size="9">芯片 3</text>
+<rect x="434" y="260" width="46" height="40" rx="6" fill="white" stroke="#d9c9a0" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="457.0" y="284.0" text-anchor="middle" fill="#8a8984" font-size="9">芯片 4</text>
+<rect x="487" y="260" width="46" height="40" rx="6" fill="white" stroke="#d9c9a0" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="510.0" y="284.0" text-anchor="middle" fill="#8a8984" font-size="9">芯片 5</text>
+<rect x="540" y="260" width="46" height="40" rx="6" fill="white" stroke="#d9c9a0" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="563.0" y="284.0" text-anchor="middle" fill="#8a8984" font-size="9">芯片 6</text>
+<rect x="593" y="260" width="46" height="40" rx="6" fill="white" stroke="#d9c9a0" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="616.0" y="284.0" text-anchor="middle" fill="#8a8984" font-size="9">芯片 7</text>
+<rect x="222" y="307" width="46" height="40" rx="6" fill="white" stroke="#d9c9a0" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="245.0" y="331.0" text-anchor="middle" fill="#8a8984" font-size="9">芯片 8</text>
+<rect x="275" y="307" width="46" height="40" rx="6" fill="white" stroke="#d9c9a0" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="298.0" y="331.0" text-anchor="middle" fill="#8a8984" font-size="9">芯片 9</text>
+<rect x="328" y="307" width="46" height="40" rx="6" fill="white" stroke="#d9c9a0" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="351.0" y="331.0" text-anchor="middle" fill="#8a8984" font-size="9">芯片 10</text>
+<rect x="381" y="307" width="46" height="40" rx="6" fill="white" stroke="#d9c9a0" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="404.0" y="331.0" text-anchor="middle" fill="#8a8984" font-size="9">芯片 11</text>
+<rect x="434" y="307" width="46" height="40" rx="6" fill="white" stroke="#d9c9a0" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="457.0" y="331.0" text-anchor="middle" fill="#8a8984" font-size="9">芯片 12</text>
+<rect x="487" y="307" width="46" height="40" rx="6" fill="white" stroke="#d9c9a0" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="510.0" y="331.0" text-anchor="middle" fill="#8a8984" font-size="9">芯片 13</text>
+<rect x="540" y="307" width="46" height="40" rx="6" fill="white" stroke="#d9c9a0" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="563.0" y="331.0" text-anchor="middle" fill="#8a8984" font-size="9">芯片 14</text>
+<rect x="593" y="307" width="46" height="40" rx="6" fill="white" stroke="#d9c9a0" stroke-width="1.2" stroke-dasharray="4,3"/>
+<text x="616.0" y="331.0" text-anchor="middle" fill="#8a8984" font-size="9">芯片 15</text>
+<rect x="222" y="362" width="412" height="58" rx="8" fill="white" stroke="#9aa3b2" stroke-width="1.2"/>
+<text x="236.0" y="382.0" text-anchor="start" fill="#0b0b0b" font-size="10" font-weight="600">每颗芯片一个服务实例：vLLM + vllm-neuron，Qwen3-30B-A3B</text>
+<text x="236.0" y="398.0" text-anchor="start" fill="#52514e" font-size="9.5">TP4 / LNC=2（4 个逻辑核，每个由 2 个物理 NeuronCore 组成）</text>
+<text x="236.0" y="412.0" text-anchor="start" fill="#8a8984" font-size="9.5">其余芯片可放更多副本（本文只测单个副本）</text>
+<text x="222.0" y="442.0" text-anchor="start" fill="#52514e" font-size="9.5">Neuron 组件：device plugin · scheduler extension（多芯片分配）</text>
+<text x="222.0" y="460.0" text-anchor="start" fill="#52514e" font-size="9.5">多机时：EFA device plugin（大 MoE 两机测试）</text>
+<rect x="700" y="112" width="152" height="92" rx="10" fill="white" stroke="#8b5cf6" stroke-width="2"/>
+<text x="776.0" y="140.0" text-anchor="middle" fill="#0b0b0b" font-size="12" font-weight="600">Amazon ECR Public</text>
+<text x="776.0" y="160.0" text-anchor="middle" fill="#52514e" font-size="9.5">Neuron 官方</text>
+<text x="776.0" y="175.0" text-anchor="middle" fill="#52514e" font-size="9.5">vLLM 推理镜像</text>
+<line x1="700" y1="158" x2="676" y2="158" stroke="#8b5cf6" stroke-width="2"/>
+<line x1="684" y1="158" x2="677.0" y2="158.0" stroke="#8b5cf6" stroke-width="2"/><path d="M668,158 L677.0,163.0 L677.0,153.0 Z" fill="#8b5cf6"/>
+<rect x="700" y="228" width="152" height="132" rx="10" fill="white" stroke="#1f9d55" stroke-width="2"/>
+<text x="776.0" y="254.0" text-anchor="middle" fill="#0b0b0b" font-size="12.5" font-weight="600">Amazon S3</text>
+<text x="776.0" y="274.0" text-anchor="middle" fill="#52514e" font-size="9.5">模型权重</text>
+<text x="776.0" y="290.0" text-anchor="middle" fill="#52514e" font-size="9.5">NEFF 编译缓存</text>
+<text x="776.0" y="312.0" text-anchor="middle" fill="#1f7a43" font-size="9.5">启动前拉取缓存</text>
+<text x="776.0" y="327.0" text-anchor="middle" fill="#1f7a43" font-size="9.5">服务就绪后推送</text>
+<text x="776.0" y="346.0" text-anchor="middle" fill="#1f7a43" font-size="9">经 S3 Gateway Endpoint</text>
+<line x1="700" y1="294" x2="690" y2="294" stroke="#1f9d55" stroke-width="2"/>
+<rect x="660" y="282" width="32" height="24" rx="4" fill="#1f9d55"/>
+<text x="676.0" y="298.0" text-anchor="middle" fill="white" font-size="9.5" font-weight="600">GW</text>
+<rect x="700" y="384" width="152" height="84" rx="10" fill="white" stroke="#dc2f45" stroke-width="2"/>
+<text x="776.0" y="410.0" text-anchor="middle" fill="#0b0b0b" font-size="12" font-weight="600">EKS Pod Identity</text>
+<text x="776.0" y="430.0" text-anchor="middle" fill="#52514e" font-size="9.5">Pod → S3 最小权限角色</text>
+<text x="776.0" y="446.0" text-anchor="middle" fill="#52514e" font-size="9.5">无长期凭证</text>
+</svg>

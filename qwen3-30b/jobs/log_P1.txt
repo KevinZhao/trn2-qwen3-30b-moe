@@ -1,0 +1,15 @@
+cand1 1 ['difference between brute force and dictionary attack in tabular format']
+cand2 0 []
+== c1_r0 fr length runs [(2263, ' ', 65), (2351, ' ', 65), (2447, '-', 88), (2536, '-', 88)] | prompt: difference between brute force and dictionary attack in tabu
+   ctx: "</think>\n\nHere's a comparison of **brute force** and **dictionary attacks** in a tabular format:\n\n| **Feature**               | **Brute Force Attack**                                                                 | **Dictionary Attack**                                                         "
+   ctx: ' format:\n\n| **Feature**               | **Brute Force Attack**                                                                 | **Dictionary Attack**                                                                 |\n|---------------------------|-------------------------------------------------'
+   ctx: '                               | **Dictionary Attack**                                                                 |\n|---------------------------|----------------------------------------------------------------------------------------|-------------------------------------------------------------------------------'
+   ctx: '                              |\n|---------------------------|----------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|\n| **Method**                | Tries **all possible combinations** of character'
+== c1_r1 fr length runs [(2263, ' ', 65), (2351, ' ', 65), (2447, '-', 88), (2536, '-', 88)] | prompt: difference between brute force and dictionary attack in tabu
+   ctx: "</think>\n\nHere's a comparison of **brute force** and **dictionary attacks** in a tabular format:\n\n| **Feature**               | **Brute Force Attack**                                                                 | **Dictionary Attack**                                                         "
+   ctx: ' format:\n\n| **Feature**               | **Brute Force Attack**                                                                 | **Dictionary Attack**                                                                 |\n|---------------------------|-------------------------------------------------'
+   ctx: '                               | **Dictionary Attack**                                                                 |\n|---------------------------|----------------------------------------------------------------------------------------|-------------------------------------------------------------------------------'
+   ctx: '                              |\n|---------------------------|----------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------|\n| **Method**                | Tries **all possible combinations** of character'
+== c16 fr length runs [] | prompt: difference between brute force and dictionary attack in tabu
+P1_DONE
+JOBDONE

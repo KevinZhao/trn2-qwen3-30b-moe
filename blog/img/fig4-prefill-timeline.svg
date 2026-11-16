@@ -1,0 +1,81 @@
+<svg viewBox="0 0 880 400" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif">
+<rect width="880" height="400" fill="white"/>
+<text x="24.0" y="30.0" text-anchor="start" fill="#0b0b0b" font-size="16" font-weight="700">prefill MoE kernel 改造前后的执行时间线（示意）</text>
+<text x="24.0" y="50.0" text-anchor="start" fill="#52514e" font-size="11">5 个真实块（专家 E5 E5 E9 E14 E14）+ 2 个空块；时长按实测量级示意，不是实测时间线</text>
+<rect x="24" y="69" width="12" height="12" rx="2" fill="#2a78d6"/>
+<text x="42.0" y="79.0" text-anchor="start" fill="#52514e" font-size="11">搬专家权重</text>
+<rect x="118" y="69" width="12" height="12" rx="2" fill="#eb6834"/>
+<text x="136.0" y="79.0" text-anchor="start" fill="#52514e" font-size="11">gather token / 写结果</text>
+<rect x="278" y="69" width="12" height="12" rx="2" fill="#1baf7a"/>
+<text x="296.0" y="79.0" text-anchor="start" fill="#52514e" font-size="11">PE 矩阵计算</text>
+<rect x="378" y="69" width="12" height="12" rx="2" fill="#c9c8c3"/>
+<text x="396.0" y="79.0" text-anchor="start" fill="#52514e" font-size="11">空块</text>
+<text x="24.0" y="116.0" text-anchor="start" fill="#0b0b0b" font-size="12.5" font-weight="600">原版</text>
+<text x="160.0" y="143.0" text-anchor="end" fill="#52514e" font-size="10.5">软件 DGE 队列</text>
+<line x1="170" y1="152" x2="825.2" y2="152" stroke="#e7e6e2"/>
+<text x="160.0" y="171.0" text-anchor="end" fill="#52514e" font-size="10.5">PE</text>
+<line x1="170" y1="180" x2="825.2" y2="180" stroke="#e7e6e2"/>
+<rect x="171.0" y="128" width="59.2" height="22" rx="3" fill="#2a78d6"/>
+<text x="200.6" y="143.0" text-anchor="middle" fill="white" font-size="9.5" font-weight="600">E5</text>
+<rect x="232.2" y="128" width="26.8" height="22" rx="3" fill="#eb6834"/>
+<rect x="261.0" y="156" width="23.2" height="22" rx="3" fill="#1baf7a"/>
+<rect x="261.0" y="128" width="59.2" height="22" rx="3" fill="#2a78d6"/>
+<text x="290.6" y="143.0" text-anchor="middle" fill="white" font-size="9.5" font-weight="600">E5</text>
+<rect x="322.2" y="128" width="26.8" height="22" rx="3" fill="#eb6834"/>
+<rect x="351.0" y="156" width="23.2" height="22" rx="3" fill="#1baf7a"/>
+<rect x="351.0" y="128" width="59.2" height="22" rx="3" fill="#2a78d6"/>
+<text x="380.6" y="143.0" text-anchor="middle" fill="white" font-size="9.5" font-weight="600">E9</text>
+<rect x="412.2" y="128" width="26.8" height="22" rx="3" fill="#eb6834"/>
+<rect x="441.0" y="156" width="23.2" height="22" rx="3" fill="#1baf7a"/>
+<rect x="441.0" y="128" width="59.2" height="22" rx="3" fill="#2a78d6"/>
+<text x="470.6" y="143.0" text-anchor="middle" fill="white" font-size="9.5" font-weight="600">E14</text>
+<rect x="502.2" y="128" width="26.8" height="22" rx="3" fill="#eb6834"/>
+<rect x="531.0" y="156" width="23.2" height="22" rx="3" fill="#1baf7a"/>
+<rect x="531.0" y="128" width="59.2" height="22" rx="3" fill="#2a78d6"/>
+<text x="560.6" y="143.0" text-anchor="middle" fill="white" font-size="9.5" font-weight="600">E14</text>
+<rect x="592.2" y="128" width="26.8" height="22" rx="3" fill="#eb6834"/>
+<rect x="621.0" y="156" width="23.2" height="22" rx="3" fill="#1baf7a"/>
+<rect x="621.0" y="128" width="59.2" height="22" rx="3" fill="#c9c8c3"/>
+<text x="650.6" y="143.0" text-anchor="middle" fill="#52514e" font-size="9.5" font-weight="600">空</text>
+<rect x="682.2" y="128" width="26.8" height="22" rx="3" fill="#c9c8c3"/>
+<rect x="711.0" y="156" width="23.2" height="22" rx="3" fill="#c9c8c3"/>
+<rect x="711.0" y="128" width="59.2" height="22" rx="3" fill="#c9c8c3"/>
+<text x="740.6" y="143.0" text-anchor="middle" fill="#52514e" font-size="9.5" font-weight="600">空</text>
+<rect x="772.2" y="128" width="26.8" height="22" rx="3" fill="#c9c8c3"/>
+<rect x="801.0" y="156" width="23.2" height="22" rx="3" fill="#c9c8c3"/>
+<text x="829.2" y="172.0" text-anchor="start" fill="#8a8984" font-size="10">结束</text>
+<text x="170.0" y="202.0" text-anchor="start" fill="#8a8984" font-size="10">每块都重搬整个专家；全部搬运挤在一条队列上，PE 大部分时间在等数据；空块照样执行</text>
+<text x="24.0" y="240.0" text-anchor="start" fill="#0b0b0b" font-size="12.5" font-weight="600">新 kernel</text>
+<text x="160.0" y="267.0" text-anchor="end" fill="#52514e" font-size="10.5">硬件 DGE（Sync 队列）</text>
+<line x1="170" y1="276" x2="825.2" y2="276" stroke="#e7e6e2"/>
+<text x="160.0" y="295.0" text-anchor="end" fill="#52514e" font-size="10.5">软件 DGE 队列</text>
+<line x1="170" y1="304" x2="825.2" y2="304" stroke="#e7e6e2"/>
+<text x="160.0" y="323.0" text-anchor="end" fill="#52514e" font-size="10.5">PE</text>
+<line x1="170" y1="332" x2="825.2" y2="332" stroke="#e7e6e2"/>
+<rect x="171.0" y="252" width="41.2" height="22" rx="3" fill="#2a78d6"/>
+<text x="191.6" y="267.0" text-anchor="middle" fill="white" font-size="9.5" font-weight="600">E5</text>
+<rect x="214.2" y="252" width="41.2" height="22" rx="3" fill="#2a78d6"/>
+<text x="234.8" y="267.0" text-anchor="middle" fill="white" font-size="9.5" font-weight="600">E9</text>
+<rect x="257.4" y="252" width="41.2" height="22" rx="3" fill="#2a78d6"/>
+<text x="278.0" y="267.0" text-anchor="middle" fill="white" font-size="9.5" font-weight="600">E14</text>
+<rect x="171.0" y="280" width="26.8" height="22" rx="3" fill="#eb6834"/>
+<rect x="199.8" y="280" width="26.8" height="22" rx="3" fill="#eb6834"/>
+<rect x="228.6" y="280" width="26.8" height="22" rx="3" fill="#eb6834"/>
+<rect x="257.4" y="280" width="26.8" height="22" rx="3" fill="#eb6834"/>
+<rect x="286.2" y="280" width="26.8" height="22" rx="3" fill="#eb6834"/>
+<rect x="214.2" y="308" width="26.8" height="22" rx="3" fill="#1baf7a"/>
+<text x="227.6" y="323.0" text-anchor="middle" fill="white" font-size="9.5" font-weight="600">E5</text>
+<rect x="243.0" y="308" width="26.8" height="22" rx="3" fill="#1baf7a"/>
+<text x="256.4" y="323.0" text-anchor="middle" fill="white" font-size="9.5" font-weight="600">E5</text>
+<rect x="271.8" y="308" width="26.8" height="22" rx="3" fill="#1baf7a"/>
+<text x="285.2" y="323.0" text-anchor="middle" fill="white" font-size="9.5" font-weight="600">E9</text>
+<rect x="300.6" y="308" width="26.8" height="22" rx="3" fill="#1baf7a"/>
+<text x="314.0" y="323.0" text-anchor="middle" fill="white" font-size="9.5" font-weight="600">E14</text>
+<rect x="329.4" y="308" width="26.8" height="22" rx="3" fill="#1baf7a"/>
+<text x="342.8" y="323.0" text-anchor="middle" fill="white" font-size="9.5" font-weight="600">E14</text>
+<rect x="358.2" y="308" width="12.4" height="22" rx="3" fill="#c9c8c3"/>
+<rect x="372.6" y="308" width="12.4" height="22" rx="3" fill="#c9c8c3"/>
+<text x="392.0" y="324.0" text-anchor="start" fill="#8a8984" font-size="10">结束</text>
+<text x="170.0" y="354.0" text-anchor="start" fill="#8a8984" font-size="10">权重只在专家变化时搬一次，走硬件 DGE；token gather 走软件 DGE，两条队列并行；</text>
+<text x="170.0" y="370.0" text-anchor="start" fill="#8a8984" font-size="10">PE 跨块流水连续工作；空块不搬任何数据（仍占少量 PE 时间）。实测每层快 1.9–2.8 倍。</text>
+</svg>

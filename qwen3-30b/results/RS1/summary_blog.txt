@@ -1,0 +1,90 @@
+Success	RS1   VB  b2_in1024_out512_c1 n=  6 fail=0 | TTFT    98.0    96.9   102.7 | TPOT   6.46 p99   6.46 | ITL   6.46 max     8.0 | tok/s  150.6 in=6144
+RS1   VB  b2_in1024_out512_c16 n= 48 fail=0 | TTFT   482.3   302.9  1629.8 | TPOT  19.00 p99  19.86 | ITL  16.87 max   115.2 | tok/s  800.2 in=49152
+RS1   VB  b2_in1024_out512_c4 n= 16 fail=0 | TTFT   225.1   238.0   382.5 | TPOT  10.79 p99  11.17 | ITL  10.59 max   109.8 | tok/s  356.7 in=16384
+RS1   VB  b2_in128_out64_c4_w n=  8 fail=0 | TTFT   163.3   167.4   273.4 | TPOT  12.20 p99  13.53 | ITL  10.55 max    74.3 | tok/s  271.8 in=1024
+RS1   VB  b2_in4096_out512_c16 n= 32 fail=0 | TTFT  1260.0   667.9  3531.8 | TPOT  24.61 p99  26.50 | ITL  20.34 max   235.0 | tok/s  588.9 in=131072
+RS1   VB  dc1024_c16_a       n= 16 fail=0 | TTFT   856.2   846.7  1626.6 | TPOT  18.43 p99  19.60 | ITL  17.14 max   108.3 | tok/s  787.9 in=16384
+RS1   VB  dc1024_c16_b       n= 16 fail=0 | TTFT   857.8   847.2  1622.5 | TPOT  18.34 p99  19.50 | ITL  17.02 max   107.5 | tok/s  790.6 in=16384
+RS1   VB  dc1024_c1_a        n=  1 fail=0 | TTFT    96.6    96.6    96.6 | TPOT   6.46 p99   6.46 | ITL   6.46 max     8.0 | tok/s  150.7 in=1024
+RS1   VB  dc1024_c1_b        n=  1 fail=0 | TTFT    99.4    99.4    99.4 | TPOT   6.46 p99   6.46 | ITL   6.43 max    10.3 | tok/s  150.6 in=1024
+RS1   VB  dc1024_c4_a        n=  4 fail=0 | TTFT   241.8   240.6   384.0 | TPOT  10.94 p99  11.17 | ITL  10.64 max   102.3 | tok/s  349.9 in=4096
+RS1   VB  dc1024_c4_b        n=  4 fail=0 | TTFT   237.2   235.9   378.1 | TPOT  10.94 p99  11.17 | ITL  10.67 max    99.6 | tok/s  350.2 in=4096
+RS1   VB  dc128_c16_a        n= 16 fail=0 | TTFT   597.7   588.8  1145.1 | TPOT  19.01 p99  19.75 | ITL  18.18 max    76.9 | tok/s  784.9 in=2048
+RS1   VB  dc128_c16_b        n= 16 fail=0 | TTFT   620.0   609.5  1193.5 | TPOT  19.29 p99  20.06 | ITL  18.32 max    85.4 | tok/s  772.0 in=2048
+RS1   VB  dc128_c1_a         n=  1 fail=0 | TTFT    65.6    65.6    65.6 | TPOT   6.44 p99   6.44 | ITL   6.44 max     7.1 | tok/s  152.5 in=128
+RS1   VB  dc128_c1_b         n=  1 fail=0 | TTFT    65.5    65.5    65.5 | TPOT   6.44 p99   6.44 | ITL   6.44 max    12.4 | tok/s  152.6 in=128
+RS1   VB  dc128_c4_a         n=  4 fail=0 | TTFT   161.4   158.6   259.3 | TPOT  10.52 p99  10.68 | ITL  10.29 max    71.5 | tok/s  369.0 in=512
+RS1   VB  dc128_c4_b         n=  4 fail=0 | TTFT   165.1   161.4   267.4 | TPOT  10.52 p99  10.68 | ITL  10.27 max    74.1 | tok/s  368.4 in=512
+RS1   VB  rn1024_c1_s42      n=  8 fail=0 | TTFT    97.6    98.6   100.8 | TPOT   6.46 p99   6.48 | ITL   6.46 max    11.9 | tok/s  146.7 in=8192
+RS1   VB  rn1024_c4_s42      n= 16 fail=0 | TTFT   225.4   237.3   380.4 | TPOT  11.07 p99  11.77 | ITL  10.62 max   102.5 | tok/s  335.2 in=16384
+RS1   VB  rn128_c1_s7_w      n=  2 fail=0 | TTFT    64.5    64.5    66.5 | TPOT   6.45 p99   6.46 | ITL   6.44 max    11.3 | tok/s  149.7 in=256
+RS1   VB  rn256_c1_s42       n=  8 fail=0 | TTFT    66.4    66.0    69.4 | TPOT   6.44 p99   6.44 | ITL   6.43 max     7.2 | tok/s  149.8 in=2048
+RS1   VB  rn256_c4_s42       n= 16 fail=0 | TTFT   166.1   174.4   279.8 | TPOT  10.53 p99  11.52 | ITL   9.88 max    78.1 | tok/s  358.3 in=4096
+RS1   VB  rn3000_c1_s42      n=  8 fail=0 | TTFT   220.9   219.8   235.9 | TPOT   6.82 p99   6.83 | ITL   6.83 max     7.4 | tok/s  130.6 in=24000
+RS1   VB  rn3000_c2_s7       n=  2 fail=0 | TTFT   330.6   330.6   431.5 | TPOT  11.29 p99  11.66 | ITL  10.87 max   220.3 | tok/s  159.3 in=6000
+RS1   VB  rn3000_c4_s42      n= 16 fail=0 | TTFT   513.0   535.6   862.6 | TPOT  11.99 p99  13.51 | ITL  10.73 max   220.7 | tok/s  286.4 in=48000
+RS1   VB  rn6000_c1_s42      n=  8 fail=0 | TTFT   421.8   423.0   433.6 | TPOT   6.69 p99   6.70 | ITL   6.71 max     7.4 | tok/s  120.3 in=48000
+RS1   VB  rn6000_c4_s42      n= 16 fail=0 | TTFT  1026.8  1021.3  1641.6 | TPOT  13.69 p99  16.27 | ITL  11.27 max   415.1 | tok/s  226.2 in=96000
+RS1   VB  rn7000_c16_s42     n= 32 fail=0 | TTFT  2520.6  1657.5  6543.6 | TPOT  36.09 p99  43.92 | ITL  20.46 max   426.9 | tok/s  347.2 in=224000
+RS1   VB  sg_c16_s123        n= 64 fail=0 | TTFT   330.7   221.2  1371.2 | TPOT  20.12 p99  21.87 | ITL  18.32 max   114.0 | tok/s  752.6 in=16789
+RS1   VB  sg_c16_s42         n= 64 fail=0 | TTFT   317.1   223.9  1304.0 | TPOT  20.20 p99  20.78 | ITL  18.53 max   113.8 | tok/s  763.0 in=17268
+RS1   VB  sg_c1_s42          n= 12 fail=0 | TTFT    70.5    63.1    98.2 | TPOT   6.44 p99   6.45 | ITL   6.43 max    13.8 | tok/s  152.2 in=2510
+RS1   VB  sg_c2_s7           n=  4 fail=0 | TTFT    90.1    77.7   135.9 | TPOT  10.78 p99  10.90 | ITL  10.76 max    81.1 | tok/s  180.9 in=298
+RS1   VB  sg_c4_s123         n= 32 fail=0 | TTFT   152.1   119.8   338.1 | TPOT  11.17 p99  11.51 | ITL  10.80 max   107.9 | tok/s  342.2 in=10227
+RS1   VB  sg_c4_s42          n= 32 fail=0 | TTFT   185.6   201.7   293.1 | TPOT  10.98 p99  11.44 | ITL  10.69 max   104.8 | tok/s  350.3 in=8869
+====
+06:12:38 phase nan
+RESULT PASS 13.7s
+06:12:52 phase dec
+06:37:45 lock got
+06:41:15 unlock
+06:41:15 phase perf
+06:41:15 lock got
+06:50:30 unlock
+06:50:30 phase b2
+06:50:30 lock got
+06:53:05 unlock
+06:53:05 phase gsm
+GSM {"n": 500, "acc": 0.934, "wall_s": 385}
+resets 34 non200 0
+errlines 0
+errlines2 0
+06:59:29 bench done
+TAG=RS1 MNS=16 NSB=[1,4,8,16] PKG=/data/cache/rs_pkg/pkg_rs1 CACHE=/data/cache/rs_RS1 PORT=8803 COMM=62803 start Sun Nov  8 05:35:59 UTC 2026
+II_DGE=sw
+NEURON_RT_ROOT_COMM_ID=127.0.0.1:62803
+NEURON_SKIP_EFA_AFFINITY=1
+NM_MOE=1
+P3_KVIX=1
+P4_DSBP=1
+P4_DSBPC=1
+P4_KNOBS=/tmp/ni2_knobs_RS1.json
+Q3_FUSED_MOE=1
+Q3_FUSED_MOE_KMOD=p2_fused11p
+VLLM_MQ_MAX_CHUNK_BYTES_MB=1
+WSA_FN=1
+1818946a5ac21bb414ca50e86b1c88d2  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/__init__.py
+27078aad000b4a5f8b3f3fdc2c45fecc  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/config.py
+47f8cb6db25de29777fc8ff980a3d436  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/factory.py
+1f2d3b12f89c7ffe7edeef72976c092f  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/ii_fused11a.py
+4135396cfb68e8a75f50e28a9a19ecee  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/model_bf16.py
+9299433e6ba335e6fd71252789b983e4  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/nm_comb.py
+3644ce23c6ad23abf2243f453b81774e  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/nm_glue.py
+c170577f0617b47ceb379217995774fa  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/nm_k9.py
+b330048b67ad0a580edd4f5687be6e69  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/p2_fused11n.py
+bf2d13d9cb1d491377a96172d44b51bd  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/p2_fused11o.py
+21903e69a0054a0db91bfd7c44ffce4a  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/p2_fused11p.py
+a5cefb9a9659fc9a26214233e7c9b212  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/q3_fused_moe.py
+70a013b1c2404608d55207760de5aa5f  /opt/conda/lib/python3.14/site-packages/vllm_neuron/model/qwen3_moe/weight_loaders_bf16.py
+6f0d1fd267d1ef0c6ed240b9a5415f6e  /opt/conda/lib/python3.14/site-packages/vllm_neuron/vllm/core/scheduler.py
+neffs_before 31
+ready Sun Nov  8 06:12:38 UTC 2026
+neffs_after 47 new=16
+mem_peak_GiB 69
+pid31615 II_DGE=sw
+pid31615 NM_MOE=1
+pid31615 P3_KVIX=1
+pid31615 P4_DSBP=1
+pid31615 Q3_FUSED_MOE_KMOD=p2_fused11p
+CFG={"neuron_config":{"quantization":"bf16","on_device_sampling_config":{"all_greedy":true},"num_batched_tokens_buckets":[128,256,512,1024,2048,4096,8192],"num_seqs_buckets":[1,4,8,16],"decode_context_length_buckets":[1024,2048,4096],"kv_segment_size_buckets":[8192]}} SRVX=
+	

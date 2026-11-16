@@ -1,0 +1,2 @@
+{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"pods.eks.amazonaws.com"},"Action":["sts:AssumeRole","sts:TagSession"],
+"Condition":{"StringEquals":{"aws:SourceAccount":"<ACCOUNT_ID>","aws:RequestTag/kubernetes-namespace":"trn2-perf","aws:RequestTag/kubernetes-service-account":"neff-cache"},"ArnEquals":{"aws:SourceArn":"arn:aws:eks:ap-south-2:<ACCOUNT_ID>:cluster/<EKS_CLUSTER>"}}}]}

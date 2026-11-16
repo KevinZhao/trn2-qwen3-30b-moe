@@ -1,0 +1,94 @@
+patched OK /opt/conda/lib/python3.14/site-packages/vllm_neuron/vllm/core/scheduler.py
+/tmp/ni2e/rs_srv.sh: line 41: /proc/321/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/993/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/994/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/995/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/996/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/6951/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/7623/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/7624/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/7625/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/7626/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21242/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21246/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21247/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21251/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21255/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21259/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21263/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21267/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21271/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21275/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21279/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21283/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21287/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21291/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21295/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21299/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21303/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21308/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21312/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21316/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21320/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21323/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21326/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21327/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21332/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21336/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21337/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21390/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21392/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21411/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/21494/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/24041/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/24381/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/24713/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/24714/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/24715/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/24716/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/47560/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/47900/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/48243/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/48244/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/48245/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/48246/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/62346/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/62694/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/63032/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/63033/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/63034/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 41: /proc/63035/environ: No such process
+/tmp/ni2e/rs_bench.sh: line 52: /tmp/rs_out_RS8/resets: No such file or directory
+grep: /tmp/rs_out_RS8/resets: No such file or directory
+neffs_after 90 new=1
+K5 1794199392.2298 pack_max=32 pack_budget=8192
+psteps 754 61 29 packed>4096tok 10
+RS8   VB  rn1024_c1_s42      n=  8 fail=0 | TTFT    84.1    83.1    88.9 | TPOT   5.89 p99   5.90 | ITL   5.90 max     6.5 | tok/s  161.3 in=8192
+RS8   VB  rn1024_c4_s42      n= 16 fail=0 | TTFT   225.4   267.3   278.0 | TPOT   8.89 p99   9.50 | ITL   8.69 max   197.7 | tok/s  410.8 in=16384
+RS8   VB  rn256_c1_s42       n=  8 fail=0 | TTFT    58.3    57.7    62.4 | TPOT   5.84 p99   5.84 | ITL   5.84 max     6.5 | tok/s  165.4 in=2048
+RS8   VB  rn256_c4_s42       n= 16 fail=0 | TTFT   107.0   119.0   188.0 | TPOT   8.40 p99   8.99 | ITL   8.18 max    69.9 | tok/s  455.0 in=4096
+RS8   VB  rn3000_c1_s42      n=  8 fail=0 | TTFT   204.7   203.3   216.4 | TPOT   6.11 p99   6.11 | ITL   6.12 max     6.8 | tok/s  145.2 in=24000
+RS8   VB  rn3000_c2_s7       n=  2 fail=0 | TTFT   324.7   324.7   421.4 | TPOT   9.38 p99   9.74 | ITL   8.98 max   212.4 | tok/s  188.1 in=6000
+RS8   VB  rn3000_c4_s42      n= 16 fail=0 | TTFT   542.8   584.5   797.7 | TPOT   9.87 p99  11.23 | ITL   8.94 max   391.7 | tok/s  334.3 in=48000
+RS8   VB  rn6000_c1_s42      n=  8 fail=0 | TTFT   406.0   404.6   420.8 | TPOT   6.37 p99   6.37 | ITL   6.39 max     7.8 | tok/s  126.1 in=48000
+RS8   VB  rn6000_c4_s42      n= 16 fail=0 | TTFT   990.9   987.7  1582.8 | TPOT  11.86 p99  14.16 | ITL   9.58 max   400.3 | tok/s  254.7 in=96000
+RS8   VB  rn7000_c16_s42     n= 32 fail=0 | TTFT  2433.0  1600.5  6312.5 | TPOT  33.42 p99  40.98 | ITL  18.34 max   410.0 | tok/s  371.7 in=224000
+RS8   VB  sg_c16_s123        n= 64 fail=0 | TTFT   299.6   232.7   461.4 | TPOT  14.60 p99  15.68 | ITL  14.40 max   406.7 | tok/s 1031.6 in=16789
+RS8   VB  sg_c16_s42         n= 64 fail=0 | TTFT   246.9   263.2   271.0 | TPOT  14.45 p99  15.00 | ITL  14.38 max   214.5 | tok/s 1071.0 in=17268
+RS8   VB  sg_c1_s42          n= 12 fail=0 | TTFT    63.8    55.7    93.6 | TPOT   5.85 p99   5.88 | ITL   5.84 max    11.9 | tok/s  167.8 in=2510
+RS8   VB  sg_c2_s7           n=  4 fail=0 | TTFT    91.8    91.8   126.7 | TPOT   8.28 p99   8.34 | ITL   8.22 max    71.7 | tok/s  236.7 in=298
+RS8   VB  sg_c32_s42         n=128 fail=0 | TTFT   429.3   458.4   544.4 | TPOT  17.26 p99  18.11 | ITL  16.92 max   403.4 | tok/s 1737.3 in=31028
+RS8   VB  sg_c4_s123         n= 32 fail=0 | TTFT   100.4    82.6   202.3 | TPOT   8.85 p99   9.21 | ITL   8.54 max   122.0 | tok/s  428.5 in=10227
+RS8   VB  sg_c4_s42          n= 32 fail=0 | TTFT   130.7   126.6   213.2 | TPOT   8.63 p99   8.92 | ITL   8.48 max    93.6 | tok/s  451.1 in=8869
+04:51:45 unlock
+04:51:45 phase ttft
+04:51:45 lock got
+04:51:52 unlock
+04:51:52 phase gsm
+GSM {"n": 500, "acc": 0.946, "wall_s": 352}
+resets 17 non200 0
+errlines 0
+errlines2 0
+04:57:45 bench done
+RS8_DONE
+JOBDONE

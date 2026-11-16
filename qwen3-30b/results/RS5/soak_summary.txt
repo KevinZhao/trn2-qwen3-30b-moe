@@ -1,0 +1,45 @@
+Success	load requests 8376 fail 0 bad 0
+sg n 4154 fail 0 bad 0 tok 1213809 e2e_max_s 37.9 ttft_max_s 7.7
+rn n 4222 fail 0 bad 0 tok 476416 e2e_max_s 23.2 ttft_max_s 7.5
+rn prompts >=4096 tok: 2833  >=6000: 1809  prefill tokens total: 18957260
+conc 1 n 525
+conc 4 n 2253
+conc 16 n 1729
+conc 32 n 3869
+canary n 91 pass 91 fail 0
+errors {}
+bad samples []
+span_min 71.2
+----
+07:35:49 soak start NSEG=7 SEG_S=600 base_log_lines=3238
+07:36:01 nan0 RESULT PASS 11.7s
+07:36:01 seg 1 lock got
+07:46:12 seg 1 done dur=611s load_total=611s reqs=1184 fails=0 errlines=0 alive=1
+07:46:12 seg 2 lock got
+07:56:20 seg 2 done dur=608s load_total=1219s reqs=2394 fails=0 errlines=0 alive=1
+07:56:20 seg 3 lock got
+08:06:31 seg 3 done dur=611s load_total=1830s reqs=3620 fails=0 errlines=0 alive=1
+08:06:31 seg 4 lock got
+08:16:40 seg 4 done dur=609s load_total=2439s reqs=4821 fails=0 errlines=0 alive=1
+08:16:51 nan_mid RESULT PASS 11.4s
+08:16:51 seg 5 lock got
+08:27:02 seg 5 done dur=611s load_total=3050s reqs=6029 fails=0 errlines=0 alive=1
+08:27:04 seg 6 LOCK TIMEOUT
+08:37:15 seg 6 done dur=611s load_total=3661s reqs=7256 fails=0 errlines=0 alive=1
+08:37:15 seg 7 LOCK TIMEOUT
+08:47:27 seg 7 done dur=612s load_total=4273s reqs=8467 fails=0 errlines=0 alive=1
+08:47:38 nan_end RESULT PASS 11.6s
+08:47:38 soak end load_total=4273s
+load requests 8376 fail 0 bad 0
+sg n 4154 fail 0 bad 0 tok 1213809 e2e_max_s 37.9 ttft_max_s 7.7
+rn n 4222 fail 0 bad 0 tok 476416 e2e_max_s 23.2 ttft_max_s 7.5
+rn prompts >=4096 tok: 2833  >=6000: 1809  prefill tokens total: 18957260
+conc 1 n 525
+conc 4 n 2253
+conc 16 n 1729
+conc 32 n 3869
+canary n 91 pass 91 fail 0
+errors {}
+bad samples []
+span_min 71.2
+	

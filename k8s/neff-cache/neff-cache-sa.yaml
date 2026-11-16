@@ -1,0 +1,4 @@
+# 已于 2026-11-08 创建（kubectl apply 幂等）。IAM 角色与 Pod Identity 关联见 README。
+apiVersion: v1
+kind: ServiceAccount
+metadata: {name: neff-cache, namespace: trn2-perf, labels: {purpose: trn2-neff-cache}}

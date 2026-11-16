@@ -1,0 +1,17 @@
+errlines 0
+errlines2 0
+09:03:13 bench done
+09:04:04 phase perf
+09:40:39 lock got
+09:48:42 unlock
+09:48:42 phase ttft
+10:01:00 lock got
+10:01:07 unlock
+10:01:07 phase gsm
+GSM {"n": 500, "acc": 0.946, "wall_s": 353}
+resets 16 non200 0
+errlines 0
+errlines2 0
+10:07:00 bench done
+BENCH4_DONE
+JOBDONE

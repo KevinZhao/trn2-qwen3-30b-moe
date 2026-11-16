@@ -1,0 +1,6 @@
+prompt runs: [('-', 58), ('-', 52), ('-', 49)] max dash run 58
+== c32 rep 0 runs []
+== c32 rep 1 runs []
+== c32 rep 2 runs []
+P1C_DONE
+JOBDONE

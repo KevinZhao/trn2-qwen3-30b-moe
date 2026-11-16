@@ -1,0 +1,27 @@
+p5check rc=0
+[serial] pack_max=1 wall=6.89s max_req_latency=0.44s steplog(max_reqs_per_prefill_step, multi_req_prefill_steps)=(1, 0)
+reset_prefix_cache: {'success': True}
+[packed] pack_max=16 wall=2.06s max_req_latency=2.06s steplog(max_reqs_per_prefill_step, multi_req_prefill_steps)=(1, 0)
+reset_prefix_cache: {'success': True}
+[packed2] pack_max=16 wall=2.05s max_req_latency=2.05s steplog(max_reqs_per_prefill_step, multi_req_prefill_steps)=(1, 0)
+
+serial vs packed: identical 12/16 = 75.0%
+  prompt 1 len=37: DIFF@12 
+  prompt 2 len=64: DIFF@49 
+  prompt 4 len=128: DIFF@27 
+  prompt 6 len=180: DIFF@9 
+
+serial vs packed2: identical 12/16 = 75.0%
+  prompt 1 len=37: DIFF@12 
+  prompt 4 len=128: DIFF@12 
+  prompt 6 len=180: DIFF@9 
+  prompt 13 len=400: DIFF@5 
+
+packed vs packed2: identical 13/16 = 81.2%
+  prompt 2 len=64: DIFF@49 
+  prompt 4 len=128: DIFF@12 
+  prompt 13 len=400: DIFF@5 
+
+sample serial[0]: ': The history of navigation spans thousands of years, from early sailors who read the stars and the swell of the ocean to modern satellite systems that fix a po'
+raw results -> /tmp/p5_pack_check_8802.json
+{"dsbpc": 1, "dsbp": 1, "pack_max": 16, "tag": "p5check_pack16"}JOBDONE

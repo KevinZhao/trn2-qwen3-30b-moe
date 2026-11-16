@@ -1,0 +1,29 @@
+# 给"没有 S3 凭证的现有 pod"预拉缓存：在同节点起一个不占 Neuron 设备的 helper pod，读写挂同一个 hostPath，
+# 把 S3 上的 SRC_TAG 拉进 /data/cache/DST_TAG/vc/neuron/native_neff_cache（只增不删）。现有 pod 不用改。
+# 用法：sed -e s/__NAME__/neff-pull-x/ -e s/__NODE__/<NODE>/ \
+#   -e s#__HOSTCACHE__#/mnt/k8s-disks/0/lx/cache# -e "s/__PAIRS__/lx_q235_stock:lx_q235_new/" neff-pull-pod.tmpl.yaml | kubectl apply -f -
+# 注意：DST_TAG 目录不能正被某个 vLLM 进程编译/启动；若它是失败启动留下的，先把 torch_compile 和 compile_cache 挪开（NCC_EVRF059）。
+apiVersion: v1
+kind: Pod
+metadata: {name: __NAME__, namespace: trn2-perf, labels: {app: neff-cache, role: pull}}
+spec:
+  serviceAccountName: neff-cache
+  nodeName: __NODE__
+  restartPolicy: Never
+  tolerations: [{key: aws.amazon.com/neuron, operator: Exists, effect: NoSchedule}]
+  containers:
+  - name: pull
+    image: public.ecr.aws/neuron/pytorch-inference-vllm-neuronx:0.29.0.1.2.0-neuronx-py314-sdk2.33.0-ubuntu26.04
+    imagePullPolicy: IfNotPresent
+    command: ["bash", "-c"]
+    args:
+    - |
+      for p in $PAIRS; do s=${p%%:*}; d=${p##*:}; bash /scripts/neff_cache.sh pull $s /src/cache/$d/vc || exit 1; done; echo PULL_DONE
+    env: [{name: PAIRS, value: "__PAIRS__"}]
+    resources: {requests: {cpu: "1", memory: 2Gi}, limits: {cpu: "4", memory: 4Gi}}
+    volumeMounts:
+    - {name: cache, mountPath: /src/cache}
+    - {name: scripts, mountPath: /scripts, readOnly: true}
+  volumes:
+  - {name: cache, hostPath: {path: __HOSTCACHE__, type: Directory}}
+  - {name: scripts, configMap: {name: neff-cache-scripts}}

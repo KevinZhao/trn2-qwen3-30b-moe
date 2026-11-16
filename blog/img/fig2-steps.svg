@@ -1,0 +1,57 @@
+<svg viewBox="0 0 880 350" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif">
+<rect width="880" height="350" fill="white"/>
+<text x="24.0" y="30.0" text-anchor="start" fill="#0b0b0b" font-size="16" font-weight="700">ShareGPT 16 并发：四项优化逐步叠加（越低越好）</text>
+<text x="24.0" y="50.0" text-anchor="start" fill="#52514e" font-size="11">每一步叠加在上一步之上；① 为纯 BF16，② 起为 W8A16（只有专家权重为 FP8）</text>
+<text x="178.0" y="123.0" text-anchor="end" fill="#52514e" font-size="11">基线（BF16）</text>
+<text x="178.0" y="163.0" text-anchor="end" fill="#52514e" font-size="11">① 去掉 padding 白算</text>
+<text x="178.0" y="203.0" text-anchor="end" fill="#52514e" font-size="11">② 专家权重改 FP8</text>
+<text x="178.0" y="243.0" text-anchor="end" fill="#52514e" font-size="11">③ decode 批上限 32</text>
+<text x="178.0" y="283.0" text-anchor="end" fill="#52514e" font-size="11" font-weight="600">④ 打包 prefill（推荐）</text>
+<text x="190.0" y="82.0" text-anchor="start" fill="#0b0b0b" font-size="12.5" font-weight="600">TPOT（ms）</text>
+<line x1="190.0" y1="94" x2="190.0" y2="298" stroke="#e7e6e2"/>
+<text x="190.0" y="314.0" text-anchor="middle" fill="#8a8984" font-size="10">0</text>
+<line x1="252.0" y1="94" x2="252.0" y2="298" stroke="#e7e6e2"/>
+<text x="252.0" y="314.0" text-anchor="middle" fill="#8a8984" font-size="10">5</text>
+<line x1="314.0" y1="94" x2="314.0" y2="298" stroke="#e7e6e2"/>
+<text x="314.0" y="314.0" text-anchor="middle" fill="#8a8984" font-size="10">10</text>
+<line x1="376.0" y1="94" x2="376.0" y2="298" stroke="#e7e6e2"/>
+<text x="376.0" y="314.0" text-anchor="middle" fill="#8a8984" font-size="10">15</text>
+<line x1="438.0" y1="94" x2="438.0" y2="298" stroke="#e7e6e2"/>
+<text x="438.0" y="314.0" text-anchor="middle" fill="#8a8984" font-size="10">20</text>
+<line x1="500.0" y1="94" x2="500.0" y2="298" stroke="#e7e6e2"/>
+<text x="500.0" y="314.0" text-anchor="middle" fill="#8a8984" font-size="10">25</text>
+<path d="M190.0,108.0 H465.4 Q469.4,108.0 469.4,112.0 V124.0 Q469.4,128.0 465.4,128.0 H190.0 Z" fill="#2a78d6"/>
+<text x="475.4" y="123.0" text-anchor="start" fill="#0b0b0b" font-size="10.5">22.53</text>
+<path d="M190.0,148.0 H436.5 Q440.5,148.0 440.5,152.0 V164.0 Q440.5,168.0 436.5,168.0 H190.0 Z" fill="#2a78d6"/>
+<text x="446.5" y="163.0" text-anchor="start" fill="#0b0b0b" font-size="10.5">20.20</text>
+<path d="M190.0,188.0 H382.7 Q386.7,188.0 386.7,192.0 V204.0 Q386.7,208.0 382.7,208.0 H190.0 Z" fill="#2a78d6"/>
+<text x="392.7" y="203.0" text-anchor="start" fill="#0b0b0b" font-size="10.5">15.86</text>
+<path d="M190.0,228.0 H382.0 Q386.0,228.0 386.0,232.0 V244.0 Q386.0,248.0 382.0,248.0 H190.0 Z" fill="#2a78d6"/>
+<text x="392.0" y="243.0" text-anchor="start" fill="#0b0b0b" font-size="10.5">15.81</text>
+<path d="M190.0,268.0 H364.9 Q368.9,268.0 368.9,272.0 V284.0 Q368.9,288.0 364.9,288.0 H190.0 Z" fill="#2a78d6"/>
+<text x="374.9" y="283.0" text-anchor="start" fill="#0b0b0b" font-size="10.5" font-weight="600">14.43</text>
+<line x1="190" y1="94" x2="190" y2="298" stroke="#8a8984"/>
+<text x="560.0" y="82.0" text-anchor="start" fill="#0b0b0b" font-size="12.5" font-weight="600">TTFT P99（ms）</text>
+<line x1="560.0" y1="94" x2="560.0" y2="298" stroke="#e7e6e2"/>
+<text x="560.0" y="314.0" text-anchor="middle" fill="#8a8984" font-size="10">0</text>
+<line x1="630.0" y1="94" x2="630.0" y2="298" stroke="#e7e6e2"/>
+<text x="630.0" y="314.0" text-anchor="middle" fill="#8a8984" font-size="10">350</text>
+<line x1="700.0" y1="94" x2="700.0" y2="298" stroke="#e7e6e2"/>
+<text x="700.0" y="314.0" text-anchor="middle" fill="#8a8984" font-size="10">700</text>
+<line x1="770.0" y1="94" x2="770.0" y2="298" stroke="#e7e6e2"/>
+<text x="770.0" y="314.0" text-anchor="middle" fill="#8a8984" font-size="10">1050</text>
+<line x1="840.0" y1="94" x2="840.0" y2="298" stroke="#e7e6e2"/>
+<text x="840.0" y="314.0" text-anchor="middle" fill="#8a8984" font-size="10">1400</text>
+<path d="M560.0,108.0 H813.6 Q817.6,108.0 817.6,112.0 V124.0 Q817.6,128.0 813.6,128.0 H560.0 Z" fill="#2a78d6"/>
+<text x="823.6" y="123.0" text-anchor="start" fill="#0b0b0b" font-size="10.5">1,288</text>
+<path d="M560.0,148.0 H816.8 Q820.8,148.0 820.8,152.0 V164.0 Q820.8,168.0 816.8,168.0 H560.0 Z" fill="#2a78d6"/>
+<text x="826.8" y="163.0" text-anchor="start" fill="#0b0b0b" font-size="10.5">1,304</text>
+<path d="M560.0,188.0 H793.6 Q797.6,188.0 797.6,192.0 V204.0 Q797.6,208.0 793.6,208.0 H560.0 Z" fill="#2a78d6"/>
+<text x="803.6" y="203.0" text-anchor="start" fill="#0b0b0b" font-size="10.5">1,188</text>
+<path d="M560.0,228.0 H784.2 Q788.2,228.0 788.2,232.0 V244.0 Q788.2,248.0 784.2,248.0 H560.0 Z" fill="#2a78d6"/>
+<text x="794.2" y="243.0" text-anchor="start" fill="#0b0b0b" font-size="10.5">1,141</text>
+<path d="M560.0,268.0 H611.2 Q615.2,268.0 615.2,272.0 V284.0 Q615.2,288.0 611.2,288.0 H560.0 Z" fill="#2a78d6"/>
+<text x="621.2" y="283.0" text-anchor="start" fill="#0b0b0b" font-size="10.5" font-weight="600">276</text>
+<line x1="560" y1="94" x2="560" y2="298" stroke="#8a8984"/>
+<text x="24.0" y="336.0" text-anchor="start" fill="#8a8984" font-size="10.5">TPOT 的改善约 3/4 来自 FP8、1/4 来自打包；TTFT P99 的改善几乎全部来自打包。</text>
+</svg>

@@ -1,0 +1,45 @@
+# 一次性代推 pod：只把某节点 hostPath 上指定 TAG 的 native_neff_cache 推到 S3（只读挂载，不申请 Neuron 设备，不碰现有 pod）
+# 与 neff-sync-pod.tmpl.yaml 的区别：neff-sync 推整个节点的全部 TAG（SKIP 排除）；这里只推 __TAGS__ 里列的（空格分隔）。
+# 推之前先确认服务 READY；neff_cache.sh 在 20 分钟内有写入时拒绝（rc=3），这里不加 FORCE。
+# 2026-11-09 补推 lx_q235_lx（lx-c 节点）、lx_ds_stock（lx-d、lx-e 两个节点各推一次，NEFF 取并集）就是用的这个。
+# 用法（bastion）：
+#   sed -e s/__NAME__/neff-push-c/ -e s/__NODE__/<NODE>/ \
+#       -e s#__HOSTCACHE__#/mnt/k8s-disks/0/lx/cache# -e "s/__TAGS__/lx_q235_lx/" neff-push-pod.tmpl.yaml | kubectl apply -f -
+#   kubectl -n trn2-perf logs neff-push-c      # 每个 TAG 一行 "NEFF_CACHE push … neff= MB= sec=" + "RC <tag> 0"
+#   kubectl -n trn2-perf delete pod neff-push-c   # Completed 后删掉
+apiVersion: v1
+kind: Pod
+metadata: {name: __NAME__, namespace: trn2-perf, labels: {app: neff-cache, role: push}}
+spec:
+  serviceAccountName: neff-cache
+  nodeName: __NODE__
+  restartPolicy: Never
+  tolerations: [{key: aws.amazon.com/neuron, operator: Exists, effect: NoSchedule}]
+  containers:
+  - name: push
+    image: public.ecr.aws/neuron/pytorch-inference-vllm-neuronx:0.29.0.1.2.0-neuronx-py314-sdk2.33.0-ubuntu26.04
+    imagePullPolicy: IfNotPresent
+    command: ["bash", "-c"]
+    args:
+    - |
+      L=/tmp/push.log; : > $L
+      for t in $TAGS; do
+        NEFF_CACHE_NOTE="push by $POD_NAME (hostPath read-only)" bash /scripts/neff_cache.sh push $t /src/cache/$t/vc 2>&1 | tee -a $L
+        echo "RC $t ${PIPESTATUS[0]}" | tee -a $L
+      done
+      echo "PUSH_DONE $(date -u +%FT%TZ)" | tee -a $L
+      aws s3 cp $L "s3://<NEFF_CACHE_BUCKET>/_meta/sync-logs/${NODE_NAME}-push-$(date -u +%Y%m%dT%H%M%SZ).log" --only-show-errors
+      sleep 120
+    env:
+    - {name: TAGS, value: "__TAGS__"}
+    - {name: NODE_NAME, valueFrom: {fieldRef: {fieldPath: spec.nodeName}}}
+    - {name: POD_NAME, valueFrom: {fieldRef: {fieldPath: metadata.name}}}
+    resources:
+      requests: {cpu: "1", memory: 2Gi}
+      limits: {cpu: "4", memory: 4Gi}
+    volumeMounts:
+    - {name: cache, mountPath: /src/cache, readOnly: true}
+    - {name: scripts, mountPath: /scripts, readOnly: true}
+  volumes:
+  - {name: cache, hostPath: {path: __HOSTCACHE__, type: Directory}}
+  - {name: scripts, configMap: {name: neff-cache-scripts}}

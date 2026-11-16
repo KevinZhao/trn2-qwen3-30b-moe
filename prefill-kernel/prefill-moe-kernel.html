@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prefill MoE Kernel 改造说明 · Qwen3-30B-A3B on Trainium2</title>
+<style>
+.viz-root{
+  color-scheme:light;
+  --page:#f9f9f7; --surface-1:#fcfcfb; --surface-2:#f3f2ee;
+  --text-primary:#0b0b0b; --text-secondary:#52514e; --text-muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,0.10);
+  --series-1:#2a78d6; --series-2:#eb6834; --series-3:#1baf7a; --series-7:#6250d6;
+  --old:#898781; --new:#2a78d6; --pad:#d6d5ce; --good:#006300; --warn-bg:#fff6e0; --warn-bd:#eda100;
+  --code-bg:#f0efec;
+}
+@media (prefers-color-scheme:dark){
+  :root:where(:not([data-theme="light"])) .viz-root{
+    color-scheme:dark;
+    --page:#0d0d0d; --surface-1:#1a1a19; --surface-2:#232321;
+    --text-primary:#f0efec; --text-secondary:#c3c2b7; --text-muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,0.10);
+    --series-1:#3987e5; --series-2:#d95926; --series-3:#199e70; --series-7:#9085e9;
+    --old:#898781; --new:#3987e5; --pad:#3a3a37; --good:#0ca30c; --warn-bg:#2a2412; --warn-bd:#c98500;
+    --code-bg:#262624;
+  }
+}
+:root[data-theme="dark"] .viz-root{
+  color-scheme:dark;
+  --page:#0d0d0d; --surface-1:#1a1a19; --surface-2:#232321;
+  --text-primary:#f0efec; --text-secondary:#c3c2b7; --text-muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,0.10);
+  --series-1:#3987e5; --series-2:#d95926; --series-3:#199e70; --series-7:#9085e9;
+  --old:#898781; --new:#3987e5; --pad:#3a3a37; --good:#0ca30c; --warn-bg:#2a2412; --warn-bd:#c98500;
+  --code-bg:#262624;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body.viz-root{background:var(--page);color:var(--text-primary);font:15px/1.75 system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+main{max-width:980px;margin:0 auto;padding:32px 20px 80px}
+h1{font-size:28px;line-height:1.3;margin:8px 0 6px}
+h2{font-size:21px;margin:48px 0 12px;padding-top:12px;border-top:1px solid var(--grid)}
+h3{font-size:16.5px;margin:26px 0 8px}
+p,li{color:var(--text-primary)}
+.sub{color:var(--text-secondary);margin:0 0 18px}
+.muted{color:var(--text-muted)}
+.sec{color:var(--text-secondary)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.88em;background:var(--code-bg);padding:1px 5px;border-radius:4px}
+.card{background:var(--surface-1);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin:16px 0}
+.note{background:var(--warn-bg);border-left:3px solid var(--warn-bd);border-radius:8px;padding:12px 16px;margin:16px 0}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:18px 0}
+.tile{background:var(--surface-1);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+.tile .v{font-size:30px;font-weight:650;line-height:1.2}
+.tile .l{color:var(--text-secondary);font-size:13px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 10px;border-bottom:1px solid var(--grid);text-align:left;vertical-align:top}
+th{color:var(--text-secondary);font-weight:600}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+button{font:inherit;font-size:13.5px;padding:5px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-primary);cursor:pointer}
+button:hover{border-color:var(--axis)}
+button.on{background:var(--text-primary);color:var(--surface-1)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--text-secondary);margin:6px 0}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+svg text{font-family:system-ui,-apple-system,"PingFang SC",sans-serif}
+.stat{font-size:13.5px;color:var(--text-secondary);margin-top:6px;line-height:1.9}
+.stat b{color:var(--text-primary);font-variant-numeric:tabular-nums}
+.caption{font-size:13px;color:var(--text-muted);margin-top:4px}
+.tip{position:fixed;pointer-events:none;background:var(--surface-1);color:var(--text-primary);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.12);display:none;z-index:9;white-space:nowrap}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:760px){.cols{grid-template-columns:1fr}}
+.theme{position:fixed;top:12px;right:14px;z-index:5}
+details summary{cursor:pointer;color:var(--text-secondary);font-size:13.5px}
+.k{display:inline-block;min-width:22px;text-align:center;font-weight:600}
+@media (prefers-reduced-motion:reduce){.anim-note{display:block}}
+.anim-note{display:none;font-size:13px;color:var(--text-muted)}
+</style>
+</head>
+<body class="viz-root">
+<div class="theme"><button id="themeBtn" title="切换深浅色">◐ 深浅色</button></div>
+<main>
+
+<p class="muted" style="margin:0">Qwen3-30B-A3B · AWS Trainium2（trn2）· vllm-neuron 0.29 / Neuron SDK 2.33 · 2026-11-07</p>
+<h1>Prefill 阶段 MoE Kernel 改造说明</h1>
+<p class="sub">读者对象：了解大模型推理基本概念（prefill / decode、MoE），但不熟悉 Neuron 硬件的同学。文中所有动画都可以暂停、重播。</p>
+
+<div class="tiles">
+  <div class="tile"><div class="v">2.0–2.8×</div><div class="l">每层 MoE prefill 提速（microbench，含 mapping 与 combine）</div></div>
+  <div class="tile"><div class="v">−40%</div><div class="l">首 token 延迟 TTFT（ShareGPT，c1/c4/c16，同时段 A/B）</div></div>
+  <div class="tile"><div class="v">640 → 688</div><div class="l">c16 吞吐 tok/s（+7.5%，decode 不再被 prefill 长时间阻塞）</div></div>
+  <div class="tile"><div class="v">不变</div><div class="l">TPOT（c1）与 GSM8K 精度；NaN / prefix cache / 报错检查全部通过</div></div>
+</div>
+
+<div class="note"><b>状态（2026-11-07 已验证）：</b>同时段 A/B、71 分钟高负载 soak（6,557 个请求，0 失败、0 设备错误）、独立复现（另写客户端，结论 confirmed）均已完成。“改进前”指我们已优化过 decode 的配置 C，只是 prefill MoE 仍用 vllm-neuron 自带的 <code>moe_cte</code>。</div>
+
+<h2>1. 先弄清楚：Prefill 时 MoE 层在做什么</h2>
+<p>Qwen3-30B-A3B 每层有 <b>128 个专家</b>（每个专家是一个小 MLP），每个 token 由 router 挑选其中 <b>8 个</b>。一次 prefill 会同时处理一整段输入（几百到几千个 token），于是每层 MoE 要做三件事：</p>
+<ol>
+<li><b>分组（mapping）</b>：根据路由结果，把 token 按专家归类——“哪些 token 要去专家 5？”</li>
+<li><b>专家计算</b>：每个专家拿到属于自己的 token，做 <code>gate_up</code> 矩阵乘 → SiLU 激活 → <code>down</code> 矩阵乘。</li>
+<li><b>合并（combine）</b>：每个 token 把 8 个专家的结果按路由权重加起来。</li>
+</ol>
+<p>Neuron 上的计算图必须在<b>编译时</b>确定形状和循环次数（运行时不能“看情况多跑几次”），所以官方实现把每个专家的 token 切成固定大小的<b>块（block，128 个 token 一块）</b>，并按<b>最坏情况</b>预留块数——真实用不满的块就是“空块”。下面的动画用简化尺寸（4 个 token 一块、6 个专家）演示这个过程：</p>
+
+<div class="card">
+  <svg id="moeSvg" viewBox="0 0 900 330" width="100%" role="img" aria-label="MoE 分组动画"></svg>
+  <div class="btns"><button id="moePrev">◀ 上一步</button><button id="moeNext">下一步 ▶</button><button id="moeAuto">自动播放</button></div>
+  <div id="moeCap" class="caption"></div>
+</div>
+
+<h2>2. 三分钟了解 Trainium2 的“厨房”</h2>
+<p>要理解为什么慢，需要知道 Neuron 芯片和 GPU 最大的不同：<b>数据搬运是显式的</b>。</p>
+<div class="cols">
+<div class="card">
+<h3 style="margin-top:0">计算引擎（每个 NeuronCore 里）</h3>
+<ul>
+<li><b>PE（Tensor Engine）</b>：128×128 的矩阵乘阵列，干重活的“主厨”。</li>
+<li><b>ACT（Scalar Engine）</b>：激活函数（SiLU 等）、逐元素运算。</li>
+<li><b>DVE（Vector Engine）</b>：向量运算、数据拷贝。</li>
+<li><b>GpSimd（Pool）</b>：通用小核，什么都能干但不快；<b>软件 DGE 就是靠它生成 DMA 描述符</b>。</li>
+</ul>
+<p class="sec">这些引擎各自独立执行自己的指令流，彼此通过信号量同步——相当于厨房里各管一摊的几个人。</p>
+</div>
+<div class="card">
+<h3 style="margin-top:0">存储层次</h3>
+<ul>
+<li><b>HBM</b>（芯片 96 GB）：放权重和 KV cache，容量大但远——相当于“冷库”。</li>
+<li><b>SBUF</b>（每核约 24 MiB 片上内存）：计算只能读这里——相当于“操作台”。</li>
+<li><b>PSUM</b>：矩阵乘的累加缓冲区。</li>
+</ul>
+<p class="sec">关键：<b>没有 GPU 那样的自动缓存</b>。HBM → SBUF 的每一次搬运都要由 kernel 明确发起一条 DMA；搬什么、什么时候搬、搬完放哪，全靠程序安排。</p>
+</div>
+</div>
+
+<div class="card">
+<h3 style="margin-top:0">DMA 描述符与两种 DGE：本次优化的关键背景</h3>
+<p>DMA 引擎搬数据需要“描述符”（从哪个地址搬多少字节到哪里）。如果地址在编译时就知道，描述符可以提前生成；但 MoE 的地址取决于<b>运行时的路由结果</b>（“这一块是第几号专家”“这一行是第几个 token”），必须在运行时现生成。Neuron 有两种做法：</p>
+<table>
+<tr><th></th><th>软件 DGE（software DGE）</th><th>硬件 DGE（hardware DGE）</th></tr>
+<tr><td>谁生成描述符</td><td>GpSimd 引擎用软件逐条算出来</td><td>DMA 硬件根据一条指令自己展开</td></tr>
+<tr><td>能力</td><td>最灵活：每一行都可以是不同地址（逐行 gather）</td><td>适合“一个动态基地址 + 固定形状”的整块搬运</td></tr>
+<tr><td>代价</td><td>描述符由 GpSimd 现算。大块连续搬运时也能接近带宽上限（实测约 348 GB/s/核）；但描述符细碎时 GpSimd 生成跟不上，原版 MoE 实测只有约 135 GB/s，且 GpSimd 71% 时间忙于生成描述符</td><td>不占 GpSimd，指令由 Sync/ACT 等引擎的队列发出；与软件 DGE 是两条独立通道，可以并行</td></tr>
+<tr><td>类比</td><td>一个服务员手写每张取货单</td><td>传送带：给个起点，自动成批运货</td></tr>
+</table>
+<p class="sec" style="margin-bottom:0">本次的核心洞察之一：<b>专家权重</b>是整块连续的（只需要“专家号”一个动态偏移），完全可以交给硬件 DGE；只有<b>按 token 逐行 gather</b> 才真正需要软件 DGE。官方实现把两者都放在了软件 DGE 上。</p>
+</div>
+
+<details class="card"><summary>如果你熟悉 GPU：为什么同样的写法在 GPU 上不太会这么慢？</summary>
+<p>GPU 有 L2 cache 和成千上万个线程，硬件会自动把“等内存”的线程换下去、让别的线程算，从而掩盖访存延迟；重复读同一份专家权重时，cache 也能帮上忙。Neuron 的做法是把调度交给编译器和 kernel：没有自动缓存，也没有线程切换来掩盖延迟，<b>搬运和计算的重叠必须写在程序里</b>。所以一个“每块都重新搬一遍权重、所有搬运挤在一条慢队列上”的 kernel，在 Neuron 上会被直接暴露成瓶颈。</p>
+</details>
+
+<h2>3. 改进前：官方 <code>moe_cte</code> 是怎么做的，慢在哪里</h2>
+<p>官方实现按块处理：<b>每一块</b>都把这个专家的权重（TP4 切分后每份约 2.25 MB）从 HBM 搬进 SBUF，再 gather 这一块的 128 个 token，算完写回结果。我们用 neuron-explorer 在 T=2048（一次 prefill 2048 个 token）下逐层 profile，得到：</p>
+<table>
+<tr><th>问题</th><th>实测现象（T=2048，每个物理核）</th></tr>
+<tr><td>① 权重不复用</td><td>每块都重新搬一次专家权重 2.25 MB，即使相邻两块是同一个专家；加上 token gather 与输出读改写，<b>每块约 3.4 MB</b></td></tr>
+<tr><td>② 所有搬运挤在一条软件 DGE 队列</td><td>98% 的 DMA 字节（364 MB 中的 334 MB）走 GpSimd 软件 DGE，实测约 <b>135 GB/s</b>；GpSimd 有 71% 的时间在生成描述符</td></tr>
+<tr><td>③ 空块照样执行</td><td>按最坏情况预留 191 块，真实只有约 145 块；空块同样要走完整流程</td></tr>
+<tr><td>④ 分组本身很重</td><td>mapping 用到 <code>indexed_flatten</code> 和 TP 集合通信，每层约 0.33 ms</td></tr>
+<tr><td>结果</td><td>每块约 3.4 MB ÷ 135 GB/s ≈ 25 µs 搬运，实测<b>每块约 28 µs</b>，而理想矩阵计算只要约 <b>7 µs</b>；PE 大部分时间在等数据</td></tr>
+</table>
+
+<h2>4. 改进后：新 kernel 的五个改动</h2>
+<p>一句话：<b>按专家顺序排好队，每个专家的权重只搬一次；权重走硬件 DGE、token 走软件 DGE，两条队列并行；搬运提前发起，和计算重叠；空块不搬数据。</b>先看整体效果——下面两条时间线用<b>同一个时间轴</b>，同时开始：</p>
+
+<div class="card">
+  <div class="legend">
+    <span><i class="sw" style="background:var(--series-1)"></i>搬专家权重</span>
+    <span><i class="sw" style="background:var(--series-2)"></i>gather token / 写结果</span>
+    <span><i class="sw" style="background:var(--series-3)"></i>PE 矩阵计算</span>
+    <span><i class="sw" style="background:var(--pad)"></i>空块</span>
+  </div>
+  <svg id="tlSvg" viewBox="0 0 940 300" width="100%" role="img" aria-label="改进前后时间线对比动画"></svg>
+  <div class="btns"><button id="tlPlay">暂停</button><button id="tlReplay">重播</button><button id="tlSpeed">速度 1×</button></div>
+  <div class="stat" id="tlStat"></div>
+  <p class="caption">示意动画：12 个块（9 块真实 + 3 块空块），专家序列 E5 E5 E9 E14 E14 E21 E21 E21 E30。时长按实测量级设定：改进前每块权重 2.25 MB + token/输出 1.15 MB，按 135 GB/s 计；改进后 PE 每项 8.3 µs（T=2048 实测平均），硬件 DGE 搬权重的时长为示意值。真实 T=2048 每核约 96–128 块。动画里 PE 只画了理想的矩阵计算时间；实测原版 PE 约 60% 的时间有指令在执行（含转置、拷贝等辅助指令，以及功耗节流拉长的时间），但同样是在等搬运。</p>
+</div>
+
+<h3>改动 ①：按 lane 切分，专家变了才重新搬权重</h3>
+<p>分组后，所有真实块按<b>专家编号顺序</b>排成一列（同一个专家的块挨在一起）。新 kernel 把这一列<b>切成 8 段连续的 lane</b>（2 个物理核 × 每核 4 条 lane），每条 lane 在 SBUF 里有一块自己的权重缓冲区。PE 轮流处理各 lane 的下一块；<b>只有当某条 lane 的下一块换了专家时，才重新搬权重</b>。</p>
+<div class="card">
+  <svg id="laneSvg" viewBox="0 0 900 270" width="100%" role="img" aria-label="lane 权重复用动画"></svg>
+  <div class="btns"><button id="lanePlay">暂停</button><button id="laneReplay">重播</button></div>
+  <div class="stat" id="laneStat"></div>
+  <p class="caption">示意：一个核的 4 条 lane、共 24 个块（这里假设平均每个专家 2–3 块，对应较长的 prefill）。T 越大，每个专家分到的块越多，复用越明显；T=2048 时平均每个专家约 1 块，此时主要收益来自改动 ② ③ ④。</p>
+</div>
+
+<h3>改动 ②：权重改走硬件 DGE，与 token gather 分两条队列</h3>
+<p>权重搬运是“一个动态基地址（专家号）+ 固定形状”的整块拷贝，交给 <b>Sync 引擎队列上的硬件 DGE</b>：不占 GpSimd，也不和 token gather 抢同一条队列。token gather（每行一个不同的 token 地址）留在软件 DGE 上。两条队列并行后，搬运不再是单车道。</p><p class="sec">更准确地说：软件 DGE 本身不是慢在“软件”两个字上——大块连续搬运时它也能接近 HBM 带宽（后续大型 MoE 实验实测约 348 GB/s/核，三种方式相同）。原版慢在“每块重搬整个专家 + 搬运被拆成大量细碎描述符、全靠 GpSimd 现算”。所以真正起作用的是“少搬”（复用）和“别让 GpSimd 成为瓶颈”（权重换到硬件通道），而不是硬件 DGE 天生更快。</p>
+
+<h3>改动 ③：空块跳过所有数据搬运</h3>
+<p>循环次数仍然必须是编译期常量（预留上界不变），但空块的 token 下标是 −1，新 kernel 对这些项的所有 DMA 使用越界跳过（oob skip），<b>一个字节都不搬</b>。注意：空块仍会占用一些 PE 时间（这是剩余的优化空间之一）。</p>
+
+<h3>改动 ④：静态展开 + 跨块软件流水，让 PE 不等自己</h3>
+<p>每个块在 PE 上分 4 个阶段：S1 把 token 转置（PE）→ S2 <code>gate_up</code> 矩阵乘（PE）+ SiLU（ACT/DVE）→ S3 中间结果转置（PE）→ S4 <code>down</code> 矩阵乘（PE）+ 写回。每个 PE 阶段都要等前一步 ACT/DVE 的结果。如果按块顺序执行，PE 每块会空等两次；新 kernel 把指令顺序排成 <code>S3(k) S2(k+1) S1(k+2) S4(k)</code>，PE 等待的那段时间正好去做别的块的活：</p>
+<div class="card">
+  <div class="legend">
+    <span><i class="sw" style="background:var(--series-3)"></i>PE 阶段</span>
+    <span><i class="sw" style="background:var(--series-7)"></i>ACT/DVE 处理（激活、拷贝）</span>
+    <span class="muted">图中数字是块编号</span>
+  </div>
+  <svg id="pipeSvg" viewBox="0 0 940 230" width="100%" role="img" aria-label="软件流水对比动画"></svg>
+  <div class="btns"><button id="pipePlay">暂停</button><button id="pipeReplay">重播</button></div>
+  <div class="stat" id="pipeStat"></div>
+  <p class="caption">示意：4 个块，阶段时长为示意值。实测旧版顺序执行时，PE 在每次 S2、S3 之后约有 2 µs 空泡。</p>
+</div>
+<p class="sec">为什么不用动态循环（运行时只跑真实块数）？我们试过 <code>fori_loop</code>：每次迭代进出都会清空所有 DMA 队列、让所有引擎做一次屏障同步，两个物理核的迭代次数还必须相同，否则设备会卡死。实测按专家动态循环 4.3 ms、每次迭代两路 3.3 ms，<b>都比原版（2.7 ms）还慢</b>。所以最终方案是“静态上界 + 空块跳过搬运 + 完全展开流水”。这个结论只针对小专家：每块只算几微秒，每次迭代几十微秒的同步开销占比太大。大型 MoE（如 DeepSeek-V3）每组计算约 0.7 ms，动态循环的开销就可以忽略，那边的实验正是按专家动态循环实现的。</p>
+
+<h3>改动 ⑤：mapping 与 combine 都变轻</h3>
+<div class="cols">
+<div class="card"><b>mapping（分组）</b>
+<p>改进前：调用 <code>build_blockwise_mapping</code>，内部 <code>indexed_flatten</code> 约 330 µs，还有 TP 集合通信。</p>
+<p>改进后：每个 rank 自己用 <code>find_nonzero_indices</code> 扫一遍 128 个专家，加几个小的 torch 运算，<b>不再需要集合通信</b>。T=2048 时 mapping 约 0.20 ms。</p></div>
+<div class="card"><b>combine（合并）</b>
+<p>改进后：专家输出在 kernel 里直接写到“按 token 排列”的位置（每个 token 8 行），再由一个小 kernel 在 PE 上用 <b>fp32</b> 把 8 行加起来。T=2048 时约 0.16 ms。</p>
+<p>附带好处：相对 fp32 参考的误差（rel-fro）从 4.36e-3 降到 <b>2.87e-3</b>。</p></div>
+</div>
+
+<h2>5. 效果</h2>
+<h3>每层 MoE prefill 耗时（单个 TP4 rank，真实路由）</h3>
+<div class="card">
+  <div class="legend"><span><i class="sw" style="background:var(--old)"></i>改进前（moe_cte + mapping）</span><span><i class="sw" style="background:var(--new)"></i>改进后（新 kernel + mapping + combine）</span></div>
+  <svg id="chartLayer" viewBox="0 0 900 320" width="100%" role="img" aria-label="每层耗时对比柱状图"></svg>
+  <details><summary>表格视图</summary><div id="tblLayer"></div></details>
+  <p class="caption">路由 logits 取自 HF 版 Qwen3-30B-A3B 在 ShareGPT 文本上的真实输出；耗时取 1 层与 3 层之差的斜率。48 层累计可节省 64 ms（T=128）到 147 ms（T=8192）。</p>
+</div>
+
+<h3>端到端 TTFT（c1，随机输入，同时段 A/B）</h3>
+<div class="card">
+  <div class="legend"><span><i class="sw" style="background:var(--old)"></i>改进前（配置 C）</span><span><i class="sw" style="background:var(--new)"></i>改进后（C + NM_MOE=1）</span></div>
+  <svg id="chartE2E" viewBox="0 0 900 300" width="100%" role="img" aria-label="端到端 TTFT 对比柱状图"></svg>
+  <details><summary>表格视图</summary><div id="tblE2E"></div></details>
+</div>
+
+<h3>并发场景（ShareGPT，输出 512，两组 seed）</h3>
+<div class="card">
+<table>
+<tr><th>指标</th><th class="num">改进前</th><th class="num">改进后</th><th class="num">变化</th></tr>
+<tr><td>c1 TTFT（ms）</td><td class="num">122.3</td><td class="num">71.0</td><td class="num">−42%</td></tr>
+<tr><td>c1 TPOT（ms）</td><td class="num">6.44</td><td class="num">6.44</td><td class="num">0</td></tr>
+<tr><td>c4 TTFT（ms，seed 42 / 123）</td><td class="num">301.6 / 252.2</td><td class="num">152.0 / 146.7</td><td class="num">−50% / −42%</td></tr>
+<tr><td>c4 TPOT（ms）</td><td class="num">11.34 / 11.55</td><td class="num">11.25 / 11.36</td><td class="num">−1~2%</td></tr>
+<tr><td>c16 TTFT（ms，seed 42 / 123）</td><td class="num">584.9 / 561.5</td><td class="num">354.5 / 336.5</td><td class="num">−39% / −40%</td></tr>
+<tr><td>c16 TPOT（ms）</td><td class="num">23.83 / 24.16</td><td class="num">22.54 / 22.71</td><td class="num">−5~6%</td></tr>
+<tr><td>c16 吞吐（tok/s）</td><td class="num">640 / 618</td><td class="num">688 / 667</td><td class="num">+7.5~7.9%</td></tr>
+<tr><td>GSM8K 500 题准确率</td><td class="num">0.940</td><td class="num">0.934</td><td class="num">翻转 1 / 4 题，在正常波动范围内</td></tr>
+</table>
+<p class="caption">decode 用的 23 个计算图与改进前逐字节相同（只新编了 7 个 prefill 图），所以 c1 TPOT 完全不变；c4/c16 TPOT 小幅下降，是因为 prefill 变短后 decode 被阻塞的时间更少。Neuron 上贪心解码不是逐位可复现的（同一配置重复跑也会有几题翻转），精度按统计判断。</p>
+</div>
+
+<h2>6. 为什么说所有 MoE 模型都能受益</h2>
+<ul>
+<li><b>瓶颈在共用路径上，不在 Qwen3 里。</b>vllm-neuron 中的 MoE 模型在 prefill 时都走同一套 <code>moe_cte</code> → nkilib blockwise kernel。“每块重搬权重”“所有搬运挤在一条软件 DGE 队列”“空块照算”“mapping 带集合通信”这四个问题都来自 kernel 本身的结构。</li>
+<li><b>专家越细，越吃亏，收益也越大。</b>现在的主流 MoE 都是“专家多、每个专家小”（Qwen3 每个专家中间维度 768，TP4 后每 rank 只有 192）。每块的计算量小、权重搬运占比大，原版就越是被搬运卡住。</li>
+<li><b>prefill 占比越高，收益越大：</b>长输入、RAG、Agent 多轮对话。</li>
+</ul>
+<div class="note"><b>边界：</b>
+<ol style="margin:4px 0">
+<li>每块的计算/搬运比只取决于“这次搬进来的权重被多少个 token 用”（每块 128 个 token ≈ 128 FLOP/字节），和专家大小无关，所以大专家同样受益；但大专家的权重放不进 SBUF（例如 DeepSeek-V3 单个专家约 88 MB，SBUF 每核约 24 MiB），需要改成“按权重分片、每片在该专家的所有块之间复用”的循环结构。已有专用 kernel 的模型（如 PR #73 Hy3-FP8）需要单独对比。</li>
+<li>当前实现是 Qwen3 专用版：写死 E=128、每 rank I=192、H=2048、bf16，T 须为 128 的倍数（vLLM 的 bucket 都是 2 的幂，所以实际服务中不会遇到）。推广需要参数化形状、支持 FP8 权重、支持专家并行。</li>
+<li>decode 走另一套 kernel，不受影响。</li>
+</ol></div>
+
+<h2>7. 剩余空间与风险</h2>
+<table>
+<tr><th>项目</th><th>说明</th></tr>
+<tr><td>离下限还有距离</td><td>T=2048 时 kernel 1.06 ms，把所有 DMA 都跳过后的下限是 0.79 ms</td></tr>
+<tr><td>空块仍占 PE</td><td>20–28% 的静态项是空块，搬运跳过了但 PE 仍在执行</td></tr>
+<tr><td>PE 功耗节流</td><td>实测 PE 有 activity throttle，平均只有满速的 75–80%（gate_up 一次从 162 ns 变成 320 ns），这部分绕不过去</td></tr>
+<tr><td>mapping + combine</td><td>每层 0.2–0.35 ms，可以进一步写成 NKI kernel，或与后面的 reduce-scatter 融合</td></tr>
+<tr><td>独立验证</td><td>另写客户端复现：c1 TTFT −44%，c16 TTFT −37~40%、TPOT −6~7%、吞吐 +7%；rn7000 c16 均值 TTFT −17~23%、吞吐 +16~17%（该档中位数在基线上呈双峰，未复现，以均值为准）。用 NEFF 访问时间确认新 kernel 确实被执行。GSM8K 三次基线 0.924–0.940，新版 0.934，且新版四次运行输出逐字相同</td></tr>
+<tr><td>代码脆弱点</td><td>combine 依赖“每个 token 恰好 8 个非零路由权重”（输出缓冲未初始化）；若 router 输出 NaN，可能写坏相邻 token 的结果。正常 softmax top-8 不会触发，但上线前应加防护；另有几个调试开关待清理</td></tr>
+<tr><td>硬件 DGE 风险</td><td>decode kernel 曾在“权重 DMA 交替从 SP/ACT 队列发出”时触发运行时错误（BAD_OPCODE）。新 kernel 的权重只从 Sync 队列发出，属于已验证的安全写法，但仍需完成正在进行的长时间 soak</td></tr>
+</table>
+
+<h2>8. 术语表</h2>
+<table>
+<tr><th>术语</th><th>含义</th></tr>
+<tr><td>Prefill / Decode</td><td>处理整段输入、产出第一个 token 的阶段 / 之后逐个生成 token 的阶段</td></tr>
+<tr><td>TTFT / TPOT</td><td>首 token 延迟 / 每个输出 token 的平均间隔</td></tr>
+<tr><td>TP4</td><td>张量并行：一个芯片上 4 个逻辑核各持有 1/4 的专家中间维度</td></tr>
+<tr><td>NeuronCore / LNC=2</td><td>Neuron 的计算核；LNC=2 表示两个物理核组成一个逻辑核，一个 TP rank 对应 2 个物理核</td></tr>
+<tr><td>SBUF / HBM</td><td>片上内存（快、小）/ 显存（大、远）</td></tr>
+<tr><td>DMA / DGE</td><td>数据搬运 / 运行时生成搬运描述符的机制（软件版靠 GpSimd，硬件版由 DMA 硬件展开）</td></tr>
+<tr><td>block / item</td><td>同一个专家的最多 128 个 token 组成的计算单元</td></tr>
+<tr><td>lane</td><td>新 kernel 中一段连续的块序列，各自持有一块权重缓冲区</td></tr>
+<tr><td>bucket</td><td>预编译好的固定输入长度档位，实际请求向上取整到某个档位执行</td></tr>
+</table>
+<p class="muted" style="margin-top:28px">代码：<code>/tmp/trn2-hyd/nm/k/nm_k9.py</code>（专家 kernel）、<code>nm_glue.py</code>（mapping 与集成）、<code>nm_comb.py</code>（combine）；部署包 <code>/tmp/trn2-hyd/nm/pkg_nm</code>，开关 <code>NM_MOE=1</code>。</p>
+</main>
+<div class="tip" id="tip"></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const css=n=>getComputedStyle(document.body).getPropertyValue(n).trim();
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs={},parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function txt(parent,x,y,s,attrs={}){const t=el('text',Object.assign({x,y,'font-size':13,fill:css('--text-secondary')},attrs),parent);t.textContent=s;return t}
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const tip=$('#tip');
+function showTip(ev,html){tip.innerHTML=html;tip.style.display='block';tip.style.left=(ev.clientX+14)+'px';tip.style.top=(ev.clientY+14)+'px'}
+function hideTip(){tip.style.display='none'}
+const redrawers=[];
+
+/* theme toggle */
+$('#themeBtn').onclick=()=>{const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;r.dataset.theme=dark?'light':'dark';redrawers.forEach(f=>f())};
+
+/* ---------------- 1. MoE grouping stepper ---------------- */
+(function(){
+  const svg=$('#moeSvg');
+  const toks=[[0,2],[1,3],[0,4],[2,3],[0,1],[3,4],[0,2],[1,4],[2,4],[0,3]]; // 10 tokens, top-2 of 6 experts (simplified)
+  const caps=[
+    '第 0 步：一段输入有 10 个 token（真实场景是几百到几千个）。',
+    '第 1 步：router 为每个 token 选出专家（图中简化为 6 选 2，Qwen3 实际是 128 选 8）。',
+    '第 2 步：mapping —— 按专家归类，每个专家拿到一份 token 列表，长短不一。',
+    '第 3 步：每个专家的列表切成固定大小的块（这里 4 个一块，实际 128 个一块）；最后一块用不满就用空位补齐（虚线格）。',
+    '第 4 步：块数必须在编译时确定，只能按最坏情况预留。多出来的整块就是“空块”（灰色）——原版实现对它们也照样搬数据、做计算。'];
+  let step=0,timer=null;
+  function expertLists(){const L=[...Array(6)].map(()=>[]);toks.forEach((p,i)=>p.forEach(e=>L[e].push(i)));return L}
+  function draw(){
+    svg.innerHTML='';
+    const ink=css('--text-primary'),mut=css('--text-muted'),c1=css('--series-1'),c2=css('--series-2'),pad=css('--pad'),grid=css('--grid');
+    // tokens column
+    txt(svg,20,22,'token',{fill:mut});
+    toks.forEach((p,i)=>{const y=40+i*27;el('rect',{x:20,y:y-12,width:44,height:20,rx:4,fill:css('--surface-2'),stroke:css('--axis')},svg);txt(svg,42,y+3,'t'+i,{'text-anchor':'middle',fill:ink,'font-size':12})});
+    if(step>=1){
+      txt(svg,140,22,'专家',{fill:mut});
+      for(let e=0;e<6;e++){const y=55+e*42;el('rect',{x:140,y:y-14,width:56,height:26,rx:5,fill:c1,opacity:.9},svg);txt(svg,168,y+4,'E'+e,{'text-anchor':'middle',fill:'#fff','font-size':12})}
+      if(step===1){toks.forEach((p,i)=>p.forEach(e=>{const l=el('line',{x1:64,y1:40+i*27-2,x2:140,y2:55+e*42-1,stroke:c2,'stroke-width':1.3,opacity:.75},svg);if(!reduced){l.setAttribute('stroke-dasharray','120');l.setAttribute('stroke-dashoffset','120');l.animate([{strokeDashoffset:120},{strokeDashoffset:0}],{duration:900,delay:i*60,fill:'forwards'})}else l.removeAttribute('stroke-dasharray')}))}
+    }
+    if(step>=2){
+      const L=expertLists();
+      txt(svg,220,22,step>=3?'按 4 个 token 切块':'每个专家的 token 列表',{fill:mut});
+      L.forEach((lst,e)=>{const y=55+e*42;
+        const cells=step>=3?Math.ceil(lst.length/4)*4:lst.length;
+        for(let j=0;j<cells;j++){const blk=Math.floor(j/4);const x=220+j*34+blk*10;const has=j<lst.length;
+          const r=el('rect',{x,y:y-12,width:30,height:22,rx:4,fill:has?css('--surface-2'):'none',stroke:has?c2:mut,'stroke-dasharray':has?'':'3 3'},svg);
+          if(has)txt(svg,x+15,y+3,'t'+lst[j],{'text-anchor':'middle',fill:ink,'font-size':11});
+          if(!reduced)r.animate([{opacity:0},{opacity:1}],{duration:300,delay:j*40,fill:'both'});
+        }
+        el('line',{x1:196,y1:y,x2:216,y2:y,stroke:grid},svg);
+      });
+      if(step>=3){
+        const real=L.reduce((s,l)=>s+Math.ceil(l.length/4),0);
+        txt(svg,640,60,'真实块数：'+real,{fill:ink,'font-size':14});
+      }
+      if(step>=4){
+        const real=L.reduce((s,l)=>s+Math.ceil(l.length/4),0), bound=9;
+        txt(svg,640,86,'编译期预留：'+bound+' 块',{fill:ink,'font-size':14});
+        for(let j=0;j<bound;j++){const x=640+(j%6)*40,y=110+Math.floor(j/6)*34;const isReal=j<real;
+          el('rect',{x,y,width:34,height:26,rx:4,fill:isReal?c2:pad,opacity:isReal?.85:1},svg);
+          txt(svg,x+17,y+17,isReal?'块':'空',{'text-anchor':'middle',fill:isReal?'#fff':css('--text-secondary'),'font-size':12});}
+        txt(svg,640,200,'空块 '+(bound-real)+' 个：原版照样执行',{fill:css('--text-secondary')});
+        txt(svg,640,222,'真实规模（T=2048）：预留 191 块，真实约 145 块',{fill:mut,'font-size':12});
+      }
+    }
+    $('#moeCap').textContent=caps[step];
+  }
+  $('#moeNext').onclick=()=>{step=Math.min(4,step+1);draw()};
+  $('#moePrev').onclick=()=>{step=Math.max(0,step-1);draw()};
+  $('#moeAuto').onclick=()=>{if(timer){clearInterval(timer);timer=null;$('#moeAuto').textContent='自动播放';return}
+    step=0;draw();$('#moeAuto').textContent='停止';timer=setInterval(()=>{if(step>=4){clearInterval(timer);timer=null;$('#moeAuto').textContent='自动播放';return}step++;draw()},2600)};
+  redrawers.push(draw);draw();
+})();
+
+/* ---------------- 3/4. Timeline before vs after ---------------- */
+(function(){
+  const svg=$('#tlSvg');
+  const seq=['E5','E5','E9','E14','E14','E21','E21','E21','E30',null,null,null];
+  // ---- old: single sw-DGE queue, double buffered
+  const W_OLD=16.7, X_OLD=8.5, PE_OLD=7;
+  const old={rows:['软件 DGE 队列（GpSimd）','PE'],bars:[],bytes:[]};
+  {let q=0,peEnd=[];for(let b=0;b<seq.length;b++){
+      const bufFree=b>=2?peEnd[b-2]:0; let s=Math.max(q,bufFree);
+      old.bars.push({r:0,s,d:W_OLD,k:seq[b]?'w':'pad',lab:seq[b]?seq[b]+' 权重':'空块',mb:2.25});s+=W_OLD;
+      old.bars.push({r:0,s,d:X_OLD,k:seq[b]?'x':'pad',lab:'token',mb:1.15});s+=X_OLD;q=s;
+      const ps=Math.max(s,b?peEnd[b-1]:0);old.bars.push({r:1,s:ps,d:PE_OLD,k:seq[b]?'pe':'pad',lab:'',mb:0});peEnd[b]=ps+PE_OLD;}
+    old.end=peEnd[seq.length-1];}
+  // ---- new: hw-DGE weights (sync), sw-DGE gather, PE pipelined
+  const W_NEW=9, X_NEW=3.9, PE_NEW=8.3, R=4, LA=3;
+  const nw={rows:['硬件 DGE · Sync 队列（权重）','软件 DGE 队列（token）','PE'],bars:[]};
+  {let qw=0,qx=0,peEnd=[],wDone=[],xDone=[];let lastE=null;
+   for(let k=0;k<seq.length;k++){
+     // weights
+     if(seq[k]&&seq[k]!==lastE){const s=Math.max(qw,k>=R?peEnd[k-R]:0);nw.bars.push({r:0,s,d:W_NEW,k:'w',lab:seq[k]+' 权重',mb:2.25});qw=s+W_NEW;wDone[k]=qw}
+     else wDone[k]=k?wDone[k-1]:0;
+     if(seq[k])lastE=seq[k];
+     // gather
+     if(seq[k]){const s=Math.max(qx,k>=LA+1?peEnd[k-LA-1]:0);nw.bars.push({r:1,s,d:X_NEW,k:'x',lab:'',mb:0.5});qx=s+X_NEW;xDone[k]=qx}else xDone[k]=0;
+     const ps=Math.max(k?peEnd[k-1]:0,wDone[k]||0,xDone[k]||0);
+     nw.bars.push({r:2,s:ps,d:PE_NEW,k:seq[k]?'pe':'pad',lab:'',mb:0});peEnd[k]=ps+PE_NEW;}
+   nw.end=peEnd[seq.length-1];}
+  const TMAX=Math.ceil(old.end/10)*10+10;
+  const X0=190,X1=920,sx=t=>X0+(X1-X0)*t/TMAX;
+  let t=0,speed=1,playing=!reduced,last=null;
+  const speeds=[0.5,1,2];
+  function color(k){return k==='w'?css('--series-1'):k==='x'?css('--series-2'):k==='pe'?css('--series-3'):css('--pad')}
+  function draw(){
+    svg.innerHTML='';
+    const ink=css('--text-primary'),mut=css('--text-muted'),grid=css('--grid');
+    const groups=[{name:'改进前',d:old,y0:28},{name:'改进后',d:nw,y0:128}];
+    // axis
+    for(let g=0;g<=TMAX;g+=50){el('line',{x1:sx(g),y1:20,x2:sx(g),y2:262,stroke:grid},svg);txt(svg,sx(g),280,g+' µs',{'text-anchor':'middle',fill:mut,'font-size':11})}
+    groups.forEach(G=>{
+      txt(svg,8,G.y0+2,G.name,{fill:ink,'font-size':14,'font-weight':600});
+      G.d.rows.forEach((r,i)=>txt(svg,8,G.y0+24+i*26,r,{fill:css('--text-secondary'),'font-size':12}));
+      G.d.bars.forEach(b=>{if(b.s>=t)return;const w=Math.min(b.d,t-b.s);
+        const y=G.y0+10+b.r*26;
+        el('rect',{x:sx(b.s)+1,y,width:Math.max(0,sx(b.s+w)-sx(b.s)-2),height:20,rx:3,fill:color(b.k)},svg);
+        if(b.lab&&w===b.d&&sx(b.s+b.d)-sx(b.s)>44)txt(svg,sx(b.s)+4,y+14,b.lab,{fill:b.k==='pad'?css('--text-secondary'):'#fff','font-size':11});
+      });
+      if(t>=G.d.end){txt(svg,Math.min(sx(G.d.end)+6,X1-70),G.y0+2,'完成 '+G.d.end.toFixed(0)+' µs',{fill:ink,'font-size':12.5,'font-weight':600})}
+    });
+    el('line',{x1:sx(Math.min(t,TMAX)),y1:16,x2:sx(Math.min(t,TMAX)),y2:264,stroke:css('--text-primary'),'stroke-width':1.2},svg);
+    // stats
+    const busy=(d,row)=>d.bars.filter(b=>b.r===row&&b.k!=='pad').reduce((s,b)=>s+Math.max(0,Math.min(b.d,t-b.s)),0);
+    const mb=d=>d.bars.reduce((s,b)=>s+(b.s<t?b.mb*Math.min(1,(t-b.s)/b.d):0),0);
+    const tt=Math.max(t,0.001);
+    $('#tlStat').innerHTML=`时间 <b>${Math.min(t,TMAX).toFixed(0)} µs</b>`+
+      ` · 改进前：已搬 <b>${mb(old).toFixed(1)} MB</b>，PE 忙碌 <b>${(100*busy(old,1)/Math.min(tt,old.end)).toFixed(0)}%</b>`+
+      ` · 改进后：已搬 <b>${mb(nw).toFixed(1)} MB</b>，PE 忙碌 <b>${(100*busy(nw,2)/Math.min(tt,nw.end)).toFixed(0)}%</b>`+
+      (t>=old.end?` · 加速 <b>${(old.end/nw.end).toFixed(1)}×</b>`:'');
+  }
+  function tick(ts){if(last==null)last=ts;const dt=(ts-last)/1000;last=ts;if(playing){t+=dt*28*speed;if(t>TMAX){t=TMAX;playing=false;$('#tlPlay').textContent='播放'}}draw();requestAnimationFrame(tick)}
+  $('#tlPlay').onclick=()=>{if(t>=TMAX)t=0;playing=!playing;$('#tlPlay').textContent=playing?'暂停':'播放'};
+  $('#tlReplay').onclick=()=>{t=0;playing=true;$('#tlPlay').textContent='暂停'};
+  $('#tlSpeed').onclick=()=>{speed=speeds[(speeds.indexOf(speed)+1)%3];$('#tlSpeed').textContent='速度 '+speed+'×'};
+  if(reduced){t=TMAX;$('#tlPlay').textContent='播放'}
+  requestAnimationFrame(tick);
+})();
+
+/* ---------------- lanes ---------------- */
+(function(){
+  const svg=$('#laneSvg');
+  // expert-major real blocks for one core, 24 blocks
+  const blocks=['E2','E2','E2','E3','E3','E5','E5','E5','E6','E6','E8','E8','E8','E9','E9','E11','E11','E11','E12','E12','E14','E14','E15','E15'];
+  const R=4,Lr=blocks.length/R;
+  const lanes=[...Array(R)].map((_,l)=>blocks.slice(l*Lr,(l+1)*Lr));
+  const order=[];for(let s=0;s<Lr;s++)for(let l=0;l<R;l++)order.push([l,s]);
+  let step=reduced?order.length:0,playing=!reduced,acc=0,last=null;
+  function loadsUpTo(n){let c=0;for(let i=0;i<n;i++){const[l,s]=order[i];if(s===0||lanes[l][s]!==lanes[l][s-1])c++}return c}
+  function draw(){
+    svg.innerHTML='';
+    const ink=css('--text-primary'),mut=css('--text-muted'),c1=css('--series-1'),c3=css('--series-3');
+    txt(svg,20,20,'按专家顺序排好的 24 个块，切成 4 段连续 lane：',{fill:mut});
+    const done=new Set(order.slice(0,step).map(([l,s])=>l+','+s));
+    const cur=step>0&&step<=order.length?order[step-1]:null;
+    lanes.forEach((ln,l)=>{const y=50+l*52;
+      txt(svg,20,y+20,'lane '+l,{fill:ink,'font-size':13});
+      ln.forEach((e,s)=>{const x=90+s*62;const isDone=done.has(l+','+s);const isCur=cur&&cur[0]===l&&cur[1]===s;
+        el('rect',{x,y,width:56,height:30,rx:5,fill:isDone?c3:css('--surface-2'),stroke:isCur?ink:css('--axis'),'stroke-width':isCur?2:1,opacity:isDone&&!isCur?.55:1},svg);
+        txt(svg,x+28,y+20,e,{'text-anchor':'middle',fill:isCur?'#fff':ink,'font-size':12});});
+      // buffer
+      let lastS=-1;order.slice(0,step).forEach(([ll,s])=>{if(ll===l)lastS=s});
+      const bx=500;const bufE=lastS>=0?ln[lastS]:'—';
+      const reload=cur&&cur[0]===l&&(cur[1]===0||ln[cur[1]]!==ln[cur[1]-1]);
+      el('rect',{x:bx,y,width:150,height:30,rx:5,fill:reload?c1:css('--surface-1'),stroke:c1},svg);
+      txt(svg,bx+75,y+20,'权重缓冲：'+bufE,{'text-anchor':'middle',fill:reload?'#fff':ink,'font-size':12});
+      if(reload)txt(svg,bx+160,y+20,'← 换专家，搬 2.25 MB',{fill:css('--text-secondary'),'font-size':12});
+      else if(cur&&cur[0]===l)txt(svg,bx+160,y+20,'← 同一专家，直接复用',{fill:css('--good'),'font-size':12});
+    });
+    const n=Math.min(step,order.length);
+    $('#laneStat').innerHTML=`已处理 <b>${n}</b> / 24 块 · 权重搬运次数：改进前 <b>${n}</b> 次（${(n*2.25).toFixed(1)} MB） · 改进后 <b>${loadsUpTo(n)}</b> 次（${(loadsUpTo(n)*2.25).toFixed(1)} MB）`;
+  }
+  function tick(ts){if(last==null)last=ts;const dt=ts-last;last=ts;if(playing){acc+=dt;if(acc>750){acc=0;step++;if(step>=order.length){step=order.length;playing=false;$('#lanePlay').textContent='播放'}}}draw();requestAnimationFrame(tick)}
+  $('#lanePlay').onclick=()=>{if(step>=order.length)step=0;playing=!playing;$('#lanePlay').textContent=playing?'暂停':'播放'};
+  $('#laneReplay').onclick=()=>{step=0;playing=true;$('#lanePlay').textContent='暂停'};
+  if(reduced)$('#lanePlay').textContent='播放';
+  requestAnimationFrame(tick);
+})();
+
+/* ---------------- pipeline ---------------- */
+(function(){
+  const svg=$('#pipeSvg');
+  const D={S1:1.2,C1:0.8,S2:2.0,A2:1.6,S3:0.6,C3:0.6,S4:2.4,C4:0.8};
+  const N=4;
+  function sim(peOrder){
+    // ops per item: S1(PE)->C1(AV)->S2(PE)->A2(AV)->S3(PE)->C3(AV)->S4(PE)->C4(AV)
+    const done={},bars=[];let pe=0,av=0;
+    const avNext={S1:'C1',S2:'A2',S3:'C3',S4:'C4'},dep={S2:'C1',S3:'A2',S4:'C3'};
+    const avQueue=[];
+    peOrder.forEach(([op,k])=>{
+      const need=dep[op]?done[dep[op]+k]:0;
+      // AV ops become ready when their PE producer finished; schedule AV greedily in order of readiness
+      const s=Math.max(pe,need==null?Infinity:need);
+      if(!isFinite(s))throw new Error('bad order');
+      bars.push({r:0,s,d:D[op],k,op});pe=s+D[op];done[op+k]=pe;
+      const a=avNext[op];const as=Math.max(av,pe);bars.push({r:1,s:as,d:D[a],k,op:a});av=as+D[a];done[a+k]=av;
+    });
+    return {bars,end:Math.max(pe,av),peBusy:peOrder.reduce((s,[op])=>s+D[op],0)};
+  }
+  const naive=[];for(let k=0;k<N;k++)['S1','S2','S3','S4'].forEach(op=>naive.push([op,k]));
+  const pipe=[['S1',0],['S1',1],['S2',0]];
+  for(let k=0;k<N;k++){pipe.push(['S3',k]);if(k+1<N)pipe.push(['S2',k+1]);if(k+2<N)pipe.push(['S1',k+2]);pipe.push(['S4',k])}
+  const A=sim(naive),B=sim(pipe);
+  const TMAX=Math.ceil(Math.max(A.end,B.end))+1;
+  const X0=150,X1=920,sx=t=>X0+(X1-X0)*t/TMAX;
+  let t=reduced?TMAX:0,playing=!reduced,last=null;
+  function draw(){
+    svg.innerHTML='';
+    const ink=css('--text-primary'),mut=css('--text-muted'),grid=css('--grid');
+    for(let g=0;g<=TMAX;g+=5){el('line',{x1:sx(g),y1:14,x2:sx(g),y2:200,stroke:grid},svg);txt(svg,sx(g),218,g+' µs',{'text-anchor':'middle',fill:mut,'font-size':11})}
+    [[A,'按块顺序',20],[B,'跨块流水',112]].forEach(([S,name,y0])=>{
+      txt(svg,8,y0+4,name,{fill:ink,'font-size':14,'font-weight':600});
+      txt(svg,8,y0+30,'PE',{fill:css('--text-secondary'),'font-size':12});txt(svg,8,y0+58,'ACT / DVE',{fill:css('--text-secondary'),'font-size':12});
+      S.bars.forEach(b=>{if(b.s>=t)return;const w=Math.min(b.d,t-b.s);const y=y0+14+b.r*28;
+        el('rect',{x:sx(b.s)+1,y,width:Math.max(0,sx(b.s+w)-sx(b.s)-2),height:22,rx:3,fill:b.r?css('--series-7'):css('--series-3')},svg);
+        if(w===b.d&&sx(b.s+b.d)-sx(b.s)>20)txt(svg,sx(b.s)+(sx(b.s+b.d)-sx(b.s))/2,y+15,(b.r?'':b.op+'·')+b.k,{'text-anchor':'middle',fill:'#fff','font-size':11});});
+      if(t>=S.end)txt(svg,Math.min(sx(S.end)+6,X1-110),y0+4,'完成 '+S.end.toFixed(1)+' µs',{fill:ink,'font-size':12.5,'font-weight':600});
+    });
+    el('line',{x1:sx(Math.min(t,TMAX)),y1:10,x2:sx(Math.min(t,TMAX)),y2:202,stroke:ink,'stroke-width':1.2},svg);
+    $('#pipeStat').innerHTML=`PE 忙碌：按块顺序 <b>${(100*A.peBusy/A.end).toFixed(0)}%</b>（${A.end.toFixed(1)} µs）· 跨块流水 <b>${(100*B.peBusy/B.end).toFixed(0)}%</b>（${B.end.toFixed(1)} µs）`;
+  }
+  function tick(ts){if(last==null)last=ts;const dt=(ts-last)/1000;last=ts;if(playing){t+=dt*3.2;if(t>TMAX){t=TMAX;playing=false;$('#pipePlay').textContent='播放'}}draw();requestAnimationFrame(tick)}
+  $('#pipePlay').onclick=()=>{if(t>=TMAX)t=0;playing=!playing;$('#pipePlay').textContent=playing?'暂停':'播放'};
+  $('#pipeReplay').onclick=()=>{t=0;playing=true;$('#pipePlay').textContent='暂停'};
+  if(reduced)$('#pipePlay').textContent='播放';
+  requestAnimationFrame(tick);
+})();
+
+/* ---------------- grouped bar charts ---------------- */
+function groupedBars(svgSel,tblSel,cats,rows,unit,labels){
+  const svg=$(svgSel);
+  function draw(){
+    svg.innerHTML='';
+    const W=900,H=+svg.getAttribute('viewBox').split(' ')[3],L=56,Rm=16,T=20,B=44;
+    const max=Math.max(...rows.flat())*1.12;
+    const step=niceStep(max/5);const top=Math.ceil(max/step)*step;
+    const sy=v=>T+(H-T-B)*(1-v/top);
+    for(let v=0;v<=top+1e-9;v+=step){el('line',{x1:L,y1:sy(v),x2:W-Rm,y2:sy(v),stroke:v===0?css('--axis'):css('--grid')},svg);txt(svg,L-8,sy(v)+4,fmt(v),{'text-anchor':'end',fill:css('--text-muted'),'font-size':11})}
+    txt(svg,L,12,unit,{fill:css('--text-muted'),'font-size':11});
+    const gw=(W-L-Rm)/cats.length,bw=Math.min(34,gw*0.28),gap=2;
+    cats.forEach((c,i)=>{const cx=L+gw*(i+.5);
+      [0,1].forEach(j=>{const v=rows[i][j];const x=cx+(j?gap/2:-bw-gap/2),y=sy(v),h=sy(0)-y;
+        const p=el('path',{d:roundTop(x,y,bw,h,4),fill:j?css('--new'):css('--old')},svg);
+        const hit=el('rect',{x:x-3,y:T,width:bw+6,height:H-T-B,fill:'transparent'},svg);
+        const html=`<b>${labels.cat}${c}</b><br>${j?'改进后':'改进前'}：${fmt(v)} ${unit}`+(j?`<br>提速 ${(rows[i][0]/rows[i][1]).toFixed(2)}×`:'');
+        hit.addEventListener('mousemove',ev=>{p.setAttribute('opacity','.8');showTip(ev,html)});hit.addEventListener('mouseleave',()=>{p.removeAttribute('opacity');hideTip()});
+      });
+      txt(svg,cx+bw/2+gap,sy(rows[i][1])-6,(rows[i][0]/rows[i][1]).toFixed(1)+'×',{'text-anchor':'middle',fill:css('--text-primary'),'font-size':11.5,'font-weight':600});
+      txt(svg,cx,H-B+18,labels.cat+c,{'text-anchor':'middle',fill:css('--text-secondary'),'font-size':12});
+    });
+  }
+  const tb=`<table><tr><th>${labels.head}</th><th class="num">改进前</th><th class="num">改进后</th><th class="num">提速</th></tr>`+
+    cats.map((c,i)=>`<tr><td>${labels.cat}${c}</td><td class="num">${fmt(rows[i][0])}</td><td class="num">${fmt(rows[i][1])}</td><td class="num">${(rows[i][0]/rows[i][1]).toFixed(2)}×</td></tr>`).join('')+'</table>';
+  $(tblSel).innerHTML=tb;
+  redrawers.push(draw);draw();
+}
+function niceStep(x){const p=Math.pow(10,Math.floor(Math.log10(x)));const m=x/p;return (m<=1?1:m<=2?2:m<=5?5:10)*p}
+function fmt(v){return v>=100?v.toFixed(0):v>=10?v.toFixed(1):v.toFixed(2)}
+function roundTop(x,y,w,h,r){r=Math.min(r,h,w/2);return `M${x},${y+h}V${y+r}Q${x},${y} ${x+r},${y}H${x+w-r}Q${x+w},${y} ${x+w},${y+r}V${y+h}Z`}
+groupedBars('#chartLayer','#tblLayer',[128,512,1024,2048,4096,8192],[[2.10,0.76],[2.33,0.95],[2.48,1.06],[3.04,1.46],[4.25,2.16],[6.63,3.57]],'ms / 层',{cat:'T=',head:'prefill token 数'});
+groupedBars('#chartE2E','#tblE2E',[256,1024,3000,6000],[[119.9,67.9],[154.2,93.8],[308.3,219.1],[543.8,420.2]],'ms',{cat:'输入 ',head:'输入长度（token）'});
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+CASE T=16 p2_fused11r KW={} | per-layer 0.2195 ms | kernel-vs-dequant-ref rel-fro 4.677e-03 |  | 
+CASE T=16 p2_fused11s KW={} | per-layer 0.2193 ms | kernel-vs-dequant-ref rel-fro 4.677e-03 |  | 
+CASE T=16 p2_fused11s KW={"ND":1} |  |  |  | Error whe
+CASE T=16 p2_fused11s KW={"SPLIT":1} | per-layer 0.2195 ms | kernel-vs-dequant-ref rel-fro 4.677e-03 |  | 
+CASE T=16 p2_fused11s KW={"SC":1} | per-layer 0.2217 ms | kernel-vs-dequant-ref rel-fro 4.677e-03 |  | 
+CASE T=16 p2_fused11s KW={"ND":1,"SPLIT":1,"SC":1} |  |  |  | Error whe
+CASE T=16 p2_fused11s KW={"HWW":1} | per-layer 0.2168 ms | kernel-vs-dequant-ref rel-fro 4.677e-03 |  | 
+CASE T=32 p2_fused11r KW={} | per-layer 0.2662 ms | kernel-vs-dequant-ref rel-fro 4.672e-03 |  | 
+CASE T=32 p2_fused11s KW={} | per-layer 0.2663 ms | kernel-vs-dequant-ref rel-fro 4.672e-03 |  | 
+CASE T=32 p2_fused11s KW={"ND":1} |  |  |  | Error whe
+CASE T=32 p2_fused11s KW={"SPLIT":1} | per-layer 0.2663 ms | kernel-vs-dequant-ref rel-fro 4.672e-03 |  | 
+CASE T=32 p2_fused11s KW={"SC":1} | per-layer 0.2662 ms | kernel-vs-dequant-ref rel-fro 4.672e-03 |  | 
+CASE T=32 p2_fused11s KW={"ND":1,"SPLIT":1,"SC":1} |  |  |  | Error whe
+CASE T=32 p2_fused11s KW={"HWW":1} | per-layer 0.2655 ms | kernel-vs-dequant-ref rel-fro 4.672e-03 |  | 
+CASE T=4 p2_fused11r KW={} | per-layer 0.1112 ms | kernel-vs-dequant-ref rel-fro 5.159e-03 |  | 
+CASE T=4 p2_fused11s KW={} | per-layer 0.1107 ms | kernel-vs-dequant-ref rel-fro 5.159e-03 |  | 
+CASE T=4 p2_fused11s KW={"ND":1} |  |  |  | Error whe
+CASE T=4 p2_fused11s KW={"SPLIT":1} | per-layer 0.1113 ms | kernel-vs-dequant-ref rel-fro 5.159e-03 |  | 
+CASE T=4 p2_fused11s KW={"SC":1} | per-layer 0.1114 ms | kernel-vs-dequant-ref rel-fro 5.159e-03 |  | 
+CASE T=4 p2_fused11s KW={"ND":1,"SPLIT":1,"SC":1} |  |  |  | Error whe
+CASE T=4 p2_fused11s KW={"HWW":1} | per-layer 0.1096 ms | kernel-vs-dequant-ref rel-fro 5.159e-03 |  | 
+MB1_DONE
+JOBDONE

@@ -1,0 +1,28 @@
+# 一次性：把 <NODE> 上 /mnt/k8s-disks/0/trn2-perf/cache/rs_results（Qwen3-30B rs 会话的原始结果）只读同步到 S3
+# s3://<NEFF_CACHE_BUCKET>/results/qwen3-30b-rs/20261109/rs_results/ ；不申请 Neuron 设备，不碰 rs-b。完成后删除本 pod。
+apiVersion: v1
+kind: Pod
+metadata: {name: rs-results-push, namespace: trn2-perf, labels: {app: neff-cache, role: results-push}}
+spec:
+  serviceAccountName: neff-cache
+  nodeName: <NODE>
+  restartPolicy: Never
+  tolerations: [{key: aws.amazon.com/neuron, operator: Exists, effect: NoSchedule}]
+  containers:
+  - name: push
+    image: public.ecr.aws/neuron/pytorch-inference-vllm-neuronx:0.29.0.1.2.0-neuronx-py314-sdk2.33.0-ubuntu26.04
+    imagePullPolicy: IfNotPresent
+    command: ["bash", "-c"]
+    args:
+    - |
+      D=s3://<NEFF_CACHE_BUCKET>/results/qwen3-30b-rs/20261109/rs_results
+      aws s3 sync /src/rs_results $D --only-show-errors; echo "SYNC_RC $?"
+      aws s3 ls $D --recursive --summarize | tail -2
+      echo PUSH_DONE; sleep 60
+    resources:
+      requests: {cpu: "1", memory: 2Gi}
+      limits: {cpu: "2", memory: 4Gi}
+    volumeMounts:
+    - {name: res, mountPath: /src/rs_results, readOnly: true}
+  volumes:
+  - {name: res, hostPath: {path: /mnt/k8s-disks/0/trn2-perf/cache/rs_results, type: Directory}}

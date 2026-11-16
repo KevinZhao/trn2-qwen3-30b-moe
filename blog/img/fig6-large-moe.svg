@@ -1,0 +1,60 @@
+<svg viewBox="0 0 880 350" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif">
+<rect width="880" height="350" fill="white"/>
+<text x="24.0" y="30.0" text-anchor="start" fill="#0b0b0b" font-size="16" font-weight="700">大 MoE 每层 prefill MoE 耗时（ms，越低越好）</text>
+<text x="24.0" y="50.0" text-anchor="start" fill="#52514e" font-size="11">单个 rank（LNC=2）microbench，合成路由，取负载最重的 rank；按全局 prefill token 数分组</text>
+<rect x="24" y="69" width="12" height="12" rx="2" fill="#eb6834"/>
+<text x="42.0" y="79.0" text-anchor="start" fill="#52514e" font-size="11">原版（vllm-neuron moe_cte）</text>
+<rect x="220" y="69" width="12" height="12" rx="2" fill="#2a78d6"/>
+<text x="238.0" y="79.0" text-anchor="start" fill="#52514e" font-size="11">新 kernel</text>
+<text x="24.0" y="112.0" text-anchor="start" fill="#0b0b0b" font-size="12" font-weight="600">DeepSeek-V3，EP64（每 rank 4 个专家）</text>
+<line x1="70.0" y1="122" x2="70.0" y2="288" stroke="#e7e6e2"/>
+<text x="70.0" y="304.0" text-anchor="middle" fill="#8a8984" font-size="10">0</text>
+<line x1="183.3" y1="122" x2="183.3" y2="288" stroke="#e7e6e2"/>
+<text x="183.3" y="304.0" text-anchor="middle" fill="#8a8984" font-size="10">10</text>
+<line x1="296.7" y1="122" x2="296.7" y2="288" stroke="#e7e6e2"/>
+<text x="296.7" y="304.0" text-anchor="middle" fill="#8a8984" font-size="10">20</text>
+<line x1="410.0" y1="122" x2="410.0" y2="288" stroke="#e7e6e2"/>
+<text x="410.0" y="304.0" text-anchor="middle" fill="#8a8984" font-size="10">30</text>
+<text x="60.0" y="153.0" text-anchor="end" fill="#52514e" font-size="11">2K</text>
+<path d="M70.0,134.0 H110.8 Q114.8,134.0 114.8,138.0 V145.0 Q114.8,149.0 110.8,149.0 H70.0 Z" fill="#eb6834"/>
+<text x="120.8" y="146.0" text-anchor="start" fill="#0b0b0b" font-size="10">3.95</text>
+<path d="M70.0,151.0 H75.9 Q79.9,151.0 79.9,155.0 V162.0 Q79.9,166.0 75.9,166.0 H70.0 Z" fill="#2a78d6"/>
+<text x="85.9" y="163.0" text-anchor="start" fill="#0b0b0b" font-size="10" font-weight="600">0.87（4.6×）</text>
+<text x="60.0" y="207.0" text-anchor="end" fill="#52514e" font-size="11">8K</text>
+<path d="M70.0,188.0 H157.8 Q161.8,188.0 161.8,192.0 V199.0 Q161.8,203.0 157.8,203.0 H70.0 Z" fill="#eb6834"/>
+<text x="167.8" y="200.0" text-anchor="start" fill="#0b0b0b" font-size="10">8.10</text>
+<path d="M70.0,205.0 H81.1 Q85.1,205.0 85.1,209.0 V216.0 Q85.1,220.0 81.1,220.0 H70.0 Z" fill="#2a78d6"/>
+<text x="91.1" y="217.0" text-anchor="start" fill="#0b0b0b" font-size="10" font-weight="600">1.33（6.1×）</text>
+<text x="60.0" y="261.0" text-anchor="end" fill="#52514e" font-size="11">32K</text>
+<path d="M70.0,242.0 H378.3 Q382.3,242.0 382.3,246.0 V253.0 Q382.3,257.0 378.3,257.0 H70.0 Z" fill="#eb6834"/>
+<text x="388.3" y="254.0" text-anchor="start" fill="#0b0b0b" font-size="10">27.56</text>
+<path d="M70.0,259.0 H110.2 Q114.2,259.0 114.2,263.0 V270.0 Q114.2,274.0 110.2,274.0 H70.0 Z" fill="#2a78d6"/>
+<text x="120.2" y="271.0" text-anchor="start" fill="#0b0b0b" font-size="10" font-weight="600">3.90（7.1×）</text>
+<line x1="70" y1="122" x2="70" y2="288" stroke="#8a8984"/>
+<text x="454.0" y="112.0" text-anchor="start" fill="#0b0b0b" font-size="12" font-weight="600">Qwen3-235B-A22B，EP16（每 rank 8 个专家）</text>
+<line x1="500.0" y1="122" x2="500.0" y2="288" stroke="#e7e6e2"/>
+<text x="500.0" y="304.0" text-anchor="middle" fill="#8a8984" font-size="10">0</text>
+<line x1="613.3" y1="122" x2="613.3" y2="288" stroke="#e7e6e2"/>
+<text x="613.3" y="304.0" text-anchor="middle" fill="#8a8984" font-size="10">20</text>
+<line x1="726.7" y1="122" x2="726.7" y2="288" stroke="#e7e6e2"/>
+<text x="726.7" y="304.0" text-anchor="middle" fill="#8a8984" font-size="10">40</text>
+<line x1="840.0" y1="122" x2="840.0" y2="288" stroke="#e7e6e2"/>
+<text x="840.0" y="304.0" text-anchor="middle" fill="#8a8984" font-size="10">60</text>
+<text x="490.0" y="153.0" text-anchor="end" fill="#52514e" font-size="11">2K</text>
+<path d="M500.0,134.0 H531.4 Q535.4,134.0 535.4,138.0 V145.0 Q535.4,149.0 531.4,149.0 H500.0 Z" fill="#eb6834"/>
+<text x="541.4" y="146.0" text-anchor="start" fill="#0b0b0b" font-size="10">6.25</text>
+<path d="M500.0,151.0 H501.4 Q505.4,151.0 505.4,155.0 V162.0 Q505.4,166.0 501.4,166.0 H500.0 Z" fill="#2a78d6"/>
+<text x="511.4" y="163.0" text-anchor="start" fill="#0b0b0b" font-size="10" font-weight="600">0.96（6.5×）</text>
+<text x="490.0" y="207.0" text-anchor="end" fill="#52514e" font-size="11">8K</text>
+<path d="M500.0,188.0 H603.4 Q607.4,188.0 607.4,192.0 V199.0 Q607.4,203.0 603.4,203.0 H500.0 Z" fill="#eb6834"/>
+<text x="613.4" y="200.0" text-anchor="start" fill="#0b0b0b" font-size="10">18.95</text>
+<path d="M500.0,205.0 H510.8 Q514.8,205.0 514.8,209.0 V216.0 Q514.8,220.0 510.8,220.0 H500.0 Z" fill="#2a78d6"/>
+<text x="520.8" y="217.0" text-anchor="start" fill="#0b0b0b" font-size="10" font-weight="600">2.62（7.2×）</text>
+<text x="490.0" y="261.0" text-anchor="end" fill="#52514e" font-size="11">32K</text>
+<path d="M500.0,242.0 H821.8 Q825.8,242.0 825.8,246.0 V253.0 Q825.8,257.0 821.8,257.0 H500.0 Z" fill="#eb6834"/>
+<text x="831.8" y="254.0" text-anchor="start" fill="#0b0b0b" font-size="10">57.50</text>
+<path d="M500.0,259.0 H539.9 Q543.9,259.0 543.9,263.0 V270.0 Q543.9,274.0 539.9,274.0 H500.0 Z" fill="#2a78d6"/>
+<text x="549.9" y="271.0" text-anchor="start" fill="#0b0b0b" font-size="10" font-weight="600">7.75（7.4×）</text>
+<line x1="500" y1="122" x2="500" y2="288" stroke="#8a8984"/>
+<text x="24.0" y="338.0" text-anchor="start" fill="#8a8984" font-size="10">原版按“本 rank 实际收到的 token”输入，对它偏有利；按 vllm-neuron 真实的 all-gather 输入，DeepSeek-V3 EP64 8K 时为 67.1 → 2.26 ms。</text>
+</svg>

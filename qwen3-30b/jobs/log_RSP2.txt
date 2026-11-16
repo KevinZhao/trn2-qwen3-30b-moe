@@ -1,0 +1,7 @@
+patched OK /opt/conda/lib/python3.14/site-packages/vllm_neuron/vllm/core/scheduler.py
+/tmp/ni2e/rs_srv.sh: line 39: /proc/321/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 39: /proc/993/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 39: /proc/994/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 39: /proc/995/environ: No such process
+/tmp/ni2e/rs_srv.sh: line 39: /proc/996/environ: No such process
+JOBDONE

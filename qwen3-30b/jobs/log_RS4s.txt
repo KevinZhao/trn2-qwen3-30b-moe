@@ -1,0 +1,22 @@
+load requests 5587 fail 0 bad 0
+sg n 2466 fail 0 bad 0 tok 726555 e2e_max_s 27.2 ttft_max_s 3.9
+rn n 3121 fail 0 bad 0 tok 344416 e2e_max_s 15.6 ttft_max_s 4.6
+rn prompts >=4096 tok: 2085  >=6000: 1330  prefill tokens total: 13983192
+conc 1 n 370
+conc 4 n 1631
+conc 16 n 3586
+conc 32 n 0
+canary n 65 pass 65 fail 0
+errors {}
+bad samples []
+span_min 50.7
+conc 1 n 370
+conc 4 n 1631
+conc 16 n 3586
+conc 32 n 0
+canary n 65 pass 65 fail 0
+errors {}
+bad samples []
+span_min 50.7
+SOAK4_DONE
+JOBDONE
